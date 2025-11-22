@@ -1,0 +1,72 @@
+Resumen y pasos para implementar ETL y Data Warehouse (Ecuador - ciudades/provincias)
+
+Componentes principales
+- `sql/TABLA.sql`: esquema base (dimensiones producto/tiempo/pedidos y `Fact_Ventas`) + definición de `CIUDAD`, secuencia y trigger de autonumeración.
+- `sql/02_alter_clientes_add_ciudad.sql`: agrega `CIUDADID` a `CLIENTES` y crea la FK hacia `CIUDAD`.
+- `sql/03_assign_random_ciudad.sql`: bloque PL/SQL que asigna ciudades aleatorias a los clientes existentes.
+- `sql/04_create_prov_cant_parro.sql`: tablas jerárquicas `PROVINCIAS`, `CANTONES`, `PARROQUIAS` con sus claves foráneas.
+- `sql/05_dw_schema_and_most_sold.sql`: dimensión categoría, dimensión ubicación (provincia/ciudad), hecho agregado y vista `VW_MAS_VENDIDO`.
+- `etl/download_ciudades.py`: ETL ligero para descargar el padrón de ciudades desde carta-natal.es, generar `ciudades_ec.csv` y un archivo de INSERTs para poblar `CIUDAD`.
+
+Flujo sugerido (ETL → DW)
+1. **Descargar y preparar ciudades (fuente carta-natal.es)**
+   - Requiere Python 3 y el paquete `requests`:
+
+     ```pwsh
+     python -m pip install --user requests
+     ```
+
+   - Ejecutar el script (genera archivos en la raíz del repo, por defecto `ciudades_ec.csv` + `insert_ciudad.sql`):
+
+     ```pwsh
+     python .\etl\download_ciudades.py
+     ```
+
+   - Parámetros opcionales: `--code` (ISO, default EC), `--csv` y `--sql` para personalizar rutas.
+   - Revisa `ciudades_ec.csv` antes de cargar; el script intenta detectar delimitadores y codificaciones, pero conviene validar manualmente.
+
+2. **Crear/popular tabla `CIUDAD`**
+   - En tu motor Oracle ejecuta la definición incluida en `sql/TABLA.sql` o solo el bloque correspondiente a `CIUDAD`.
+   - Carga los datos generados:
+
+     ```pwsh
+     sqlplus usuario/clave@tns @.\insert_ciudad.sql
+     ```
+
+     (También puedes usar SQL*Loader/External Table apuntando a `ciudades_ec.csv`).
+
+3. **Relacionar clientes con ciudades**
+   - Ejecuta los scripts para añadir el campo y asignar valores:
+
+     ```pwsh
+     sqlplus usuario/clave@tns @.\sql\02_alter_clientes_add_ciudad.sql
+     sqlplus usuario/clave@tns @.\sql\03_assign_random_ciudad.sql
+     ```
+
+   - Modifica el bloque PL/SQL si prefieres estrategias determinísticas (p.ej. por provincia conocida en otra tabla).
+
+4. **Crear esquema de provincias / cantones / parroquias**
+   - Ejecuta `sql/04_create_prov_cant_parro.sql` para la estructura.
+   - Descarga los datos de https://github.com/vfabianfarias/Datos-Geograficos-Ecuador o del PDF oficial del MTOP (https://www.obraspublicas.gob.ec/.../CENSO_2016_TTHH_Listado_prov-cantones-parroquias.pdf).
+   - Usa SQL*Loader, external tables o convierte los CSV en INSERTs para poblar cada tabla respetando la jerarquía.
+
+5. **Implementar el Data Warehouse**
+   - Asegura que las dimensiones base (`Dim_Producto`, `Dim_Tiempo`, `Dim_Pedidos`) y `Fact_Ventas` estén pobladas.
+   - Ejecuta `sql/05_dw_schema_and_most_sold.sql` para crear `Dim_Categoria`, `Dim_Ubicacion`, `Fact_Ventas_Agg` y la vista `VW_MAS_VENDIDO`.
+   - El script espera que `PRODUCTOS` tenga una columna `CATEGORIA`; ajusta nombres o agrega lookups si en tu modelo difiere.
+
+6. **Consultar el producto más vendido**
+   - Usa la vista `VW_MAS_VENDIDO` para obtener, por día/categoría/provincia/ciudad, qué producto tuvo la mayor venta (suma de `CantidadVendida`).
+   - Ejemplo:
+
+     ```sql
+     SELECT fecha, categoria, provincia, ciudad, producto, total_vendido
+     FROM VW_MAS_VENDIDO
+     WHERE fecha BETWEEN DATE '2025-01-01' AND DATE '2025-12-31';
+     ```
+
+Notas
+- El script `download_ciudades.py` solo genera archivos locales; no ejecuta INSERTs en Oracle. Valida los datos antes de cargarlos.
+- Si necesitas automatizar la carga directa (usando `cx_Oracle` o `oracledb`), indícalo para extender el script con conexión y ejecución segura.
+- Para provincias/cantones/parroquias se recomienda normalizar mayúsculas/minúsculas y códigos para facilitar joins con `CIUDAD` o `Dim_Ubicacion`.
+- `sql/TABLA.sql` incluye ejemplos de inserción en las dimensiones base; adapta las fuentes (`PRODUCTOS`, `ORDENES`, `DETALLE_ORDENES`) según tu esquema transaccional real.

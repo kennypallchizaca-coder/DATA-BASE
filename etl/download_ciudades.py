@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+"""Descarga la lista de ciudades de Ecuador desde carta-natal.es y genera archivos CSV/SQL."""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import io
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, List, Optional
+from urllib.parse import urljoin
+from zipfile import ZipFile
+
+import requests
+
+DESCARGAS_URL = "https://carta-natal.es/descargas/coordenadas.php"
+DEFAULT_ZIP_PATTERN = "https://carta-natal.es/descargas/ciudades/{code}.zip"
+DEFAULT_CODE = "EC"
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DEFAULT_CSV = ROOT_DIR / "ciudades_ec.csv"
+DEFAULT_SQL = ROOT_DIR / "insert_ciudad.sql"
+
+
+@dataclass
+class CiudadRow:
+    ciudadid: int
+    nombre: str
+    provincia: str
+    latitud: Optional[float]
+    longitud: Optional[float]
+    zona_horaria: str
+
+
+def find_download_url(html: str, code: str) -> str:
+    pattern = re.compile(r'href="([^\"]+{code}[^\"]+)"[^>]*>[^<]*Descargar archivo\s+{code}'.format(code=code), re.IGNORECASE)
+    match = pattern.search(html)
+    if match:
+        return urljoin(DESCARGAS_URL, match.group(1))
+    return DEFAULT_ZIP_PATTERN.format(code=code.upper())
+
+
+def decode_bytes(raw: bytes) -> str:
+    for encoding in ("utf-8", "latin-1", "cp1252"):
+        try:
+            return raw.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("latin-1", errors="ignore")
+
+
+def sniff_delimiter(sample: str) -> str:
+    for delimiter in (";", ",", "|", "\t"):
+        if delimiter in sample:
+            return delimiter
+    return ";"
+
+
+def normalize_float(value: str) -> Optional[float]:
+    if value is None:
+        return None
+    value = value.strip()
+    if not value:
+        return None
+    value = value.replace(",", ".")
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def read_zip_payload(payload: bytes, code: str) -> str:
+    with ZipFile(io.BytesIO(payload)) as zf:
+        names = zf.namelist()
+        if not names:
+            raise RuntimeError("El ZIP está vacío")
+        target = next((n for n in names if n.lower().startswith(code.lower())), names[0])
+        with zf.open(target) as fh:
+            return decode_bytes(fh.read())
+
+
+def parse_ciudades(text: str) -> List[dict]:
+    cleaned_lines = [line for line in text.splitlines() if line.strip()]
+    if not cleaned_lines:
+        return []
+    sample = "\n".join(cleaned_lines[:10])
+    delimiter = sniff_delimiter(sample)
+    reader = csv.reader(io.StringIO("\n".join(cleaned_lines)), delimiter=delimiter)
+    rows = list(reader)
+    if not rows:
+        return []
+
+    header = [col.strip().lower() for col in rows[0]]
+    def looks_like_header(cols: Iterable[str]) -> bool:
+        return any(col.isalpha() for col in cols)
+
+    has_header = looks_like_header(header)
+    data_rows = rows[1:] if has_header else rows
+    if not has_header:
+        header = [f"col_{idx}" for idx in range(len(rows[0]))]
+
+    def get_index(*candidates: str) -> Optional[int]:
+        lowered = [col.lower() for col in header]
+        for candidate in candidates:
+            if candidate in lowered:
+                return lowered.index(candidate)
+        return None
+
+    idx_city = get_index("ciudad", "city", "poblacion", "nombre", "localidad") or 0
+    idx_prov = get_index("estado", "provincia", "region", "departamento", "state")
+    idx_lat = get_index("lat", "latitud", "latitude")
+    idx_lon = get_index("lon", "longitud", "longitude")
+    idx_tz = get_index("zona", "timezone", "tz", "gmt")
+
+    parsed: List[dict] = []
+    for row in data_rows:
+        if idx_city >= len(row):
+            continue
+        nombre = row[idx_city].strip().title()
+        if not nombre:
+            continue
+        provincia = row[idx_prov].strip().title() if idx_prov is not None and idx_prov < len(row) else ""
+        latitud = normalize_float(row[idx_lat]) if idx_lat is not None and idx_lat < len(row) else None
+        longitud = normalize_float(row[idx_lon]) if idx_lon is not None and idx_lon < len(row) else None
+        zona = row[idx_tz].strip() if idx_tz is not None and idx_tz < len(row) else ""
+        parsed.append({
+            "nombre": nombre,
+            "provincia": provincia,
+            "latitud": latitud,
+            "longitud": longitud,
+            "zona_horaria": zona,
+        })
+    return parsed
+
+
+def to_sql_literal(value: Optional[str]) -> str:
+    if value is None:
+        return "NULL"
+    escaped = value.replace("'", "''")
+    return f"'{escaped}'"
+
+
+def write_csv(rows: List[CiudadRow], path: Path) -> None:
+    fieldnames = ["ciudadid", "nombre", "provincia", "latitud", "longitud", "zona_horaria"]
+    with path.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({
+                "ciudadid": row.ciudadid,
+                "nombre": row.nombre,
+                "provincia": row.provincia,
+                "latitud": row.latitud or "",
+                "longitud": row.longitud or "",
+                "zona_horaria": row.zona_horaria,
+            })
+
+
+def write_sql(rows: List[CiudadRow], path: Path) -> None:
+    with path.open("w", encoding="utf-8") as fh:
+        fh.write("-- INSERTS generados automáticamente para la tabla CIUDAD\n")
+        fh.write("-- Revisar antes de ejecutar\n\n")
+        for row in rows:
+            fh.write(
+                "INSERT INTO CIUDAD (CIUDADID, NOMBRE, PROVINCIA, LATITUD, LONGITUD, ZONA_HORARIA) "
+                f"VALUES ({row.ciudadid}, {to_sql_literal(row.nombre)}, {to_sql_literal(row.provincia)}, "
+                f"{row.latitud if row.latitud is not None else 'NULL'}, {row.longitud if row.longitud is not None else 'NULL'}, "
+                f"{to_sql_literal(row.zona_horaria)});\n"
+            )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Descarga y prepara catálogo de ciudades de Ecuador")
+    parser.add_argument("--code", default=DEFAULT_CODE, help="Código ISO del país (default: EC)")
+    parser.add_argument("--csv", type=Path, default=DEFAULT_CSV, help="Ruta de salida para el CSV")
+    parser.add_argument("--sql", type=Path, default=DEFAULT_SQL, help="Ruta de salida para el archivo SQL")
+    args = parser.parse_args()
+
+    session = requests.Session()
+    html = session.get(DESCARGAS_URL, timeout=30).text
+    download_url = find_download_url(html, args.code.upper())
+    payload = session.get(download_url, timeout=60)
+    payload.raise_for_status()
+
+    text = read_zip_payload(payload.content, args.code.upper())
+    parsed = parse_ciudades(text)
+    if not parsed:
+        raise RuntimeError("No se pudo interpretar el contenido descargado")
+
+    rows = [
+        CiudadRow(idx + 1, item["nombre"], item["provincia"], item["latitud"], item["longitud"], item["zona_horaria"])
+        for idx, item in enumerate(parsed)
+    ]
+
+    args.csv.parent.mkdir(parents=True, exist_ok=True)
+    args.sql.parent.mkdir(parents=True, exist_ok=True)
+    write_csv(rows, args.csv)
+    write_sql(rows, args.sql)
+    print(f"Se generaron {len(rows)} registros en {args.csv} y {args.sql}")
+
+
+if __name__ == "__main__":
+    main()
