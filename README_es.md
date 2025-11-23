@@ -1,5 +1,13 @@
 Guia rapida: ETL y DW con ubicacion (Ecuador)
 
+Checklist de requerimientos
+- Tabla CIUDAD agregada al esquema de pedidos con CIUDADID como PK y nombre/provincia/coord. Script: `scripts/sql/oltp/01_create_ciudad_table.sql`.
+- CIUDAD se carga con la lista de Ecuador generada desde la carpeta data/raw/ciudades (GeoNames EC.zip) → `data/output/ciudades/insert_ciudad.sql`.
+- CLIENTES enlazado a CIUDAD y poblado con una ciudad aleatoria (`scripts/sql/oltp/02_add_ciudad_to_clientes.sql` y `03_assign_random_city_to_clients.sql`).
+- Hecho para top producto por tiempo/categoria/ubicacion (provincia+ciudad) en el DW y vista `VW_MAS_VENDIDO` (`scripts/sql/dw/01_dw_star_schema_and_top_product_view.sql`).
+- Esquema geografico de 3 tablas (PROVINCIAS, CANTONES, PARROQUIAS) basado en el PDF del censo en `data/Datos-Geograficos-Ecuador/` (`scripts/sql/oltp/04_create_province_canton_parish_tables.sql`).
+- Proceso ETL que alimenta dimensiones y hecho usando el esquema transaccional (`scripts/sql/etl/load_dw_from_oltp.sql`).
+
 Estructura de carpetas (lista de trabajo)
 - data/
   - raw/ciudades/: fuentes GeoNames (EC.zip, admin1CodesASCII.txt). Coloca aqui cualquier EC.txt/zip local.
