@@ -1,4 +1,4 @@
--- 05_dw_schema_and_most_sold.sql
+-- 01_dw_star_schema_and_top_product_view.sql
 -- Esquema estrella (OLAP) y vista del producto más vendido.
 -- Incluye jerarquía geográfica Provincia -> Cantón -> Parroquia/Ciudad.
 
