@@ -17,6 +17,18 @@ Componentes principales
 - `scripts/sql/dw/01_dw_star_schema_and_top_product_view.sql`: DDL completo del esquema estrella (tiempo, producto, categoría, ubicación con jerarquía provincia → cantón → parroquia/ciudad), tabla de hechos con medidas y vista `VW_MAS_VENDIDO`.
 - `scripts/sql/etl/load_dw_from_oltp.sql`: script ETL en SQL que alimenta las dimensiones (incluyendo el cruce con el censo) y carga la tabla de hechos desde `ORDENES`/`DETALLE_ORDENES`.
 - `scripts/python/download_ecuador_cities.py`: ETL ligero para descargar el padrón de ciudades desde carta-natal.es, generar `ciudades_ec.csv` y un archivo de INSERTs para poblar `CIUDAD`. Detecta automáticamente `data/raw/ciudades/EC.txt` si está disponible.
+- `scripts/python/run_full_etl_pipeline.py`: envoltorio en Python que genera el catálogo de ciudades y crea un plan `plan_ejecucion_dw.sql` que encadena todos los scripts SQL (OLTP + DW).
+
+### Cómo funciona el código Python (comentado)
+
+- `download_ecuador_cities.py`
+  - Función reutilizable `generate_catalog(...)`: recibe el código ISO, rutas de salida y (opcionalmente) un TXT/ZIP local; si no se indica fuente, busca `data/raw/ciudades/<CODE>.txt` y, si no existe, descarga el ZIP oficial y lo decodifica.
+  - Normaliza el contenido (detecta delimitadores, encabezados, codificación y coordenadas), lo convierte en objetos `CiudadRow` y exporta tanto a CSV como a un archivo de `INSERT` listo para Oracle.
+  - La función `main()` solo parsea argumentos y llama a `generate_catalog`, por lo que otros scripts pueden reutilizar la lógica sin modificarla.
+- `run_full_etl_pipeline.py`
+  - Usa `generate_catalog` para asegurar que el padrón de ciudades se genere antes de cargar la BD.
+  - Construye automáticamente `data/output/plan_ejecucion_dw.sql` con la secuencia recomendada de scripts: crear `CIUDAD`, añadir la FK a `CLIENTES`, asignar ciudades, crear jerarquía geográfica, desplegar el esquema estrella y ejecutar el ETL.
+  - No se conecta a la BD: solo deja preparados los artefactos y el plan a ejecutar en SQL*Plus/SQLcl.
 
 Flujo sugerido (ETL → DW)
 1. **Descargar y preparar ciudades (fuente carta-natal.es o archivo local)**

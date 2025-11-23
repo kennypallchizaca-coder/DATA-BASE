@@ -7,3 +7,7 @@ __pycache__/
 # ETL outputs
 /data/output/**
 !/data/output/README.md
+!/data/output/plan_ejecucion_dw.sql
+!/data/output/ciudades/
+!/data/output/ciudades/ciudades_ec.csv
+!/data/output/ciudades/insert_ciudad.sql
