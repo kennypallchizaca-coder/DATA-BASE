@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[2]
 CITY_INSERT_SQL = ROOT / "data" / "output" / "ciudades" / "insert_ciudad.sql"
 
 SQL_SEQUENCE = [
-    "EsquemaOriginal/TABLA-ORIGINAL.sql",
+    # Se asume que las tablas base (Dim_Producto, Dim_Tiempo, etc.) ya existen.
+    # Si necesitas recrearlas, ejecútalas manualmente antes del plan.
     "scripts/sql/oltp/00_require_base_tables.sql",
     "scripts/sql/oltp/01_create_ciudad_table.sql",
     str(CITY_INSERT_SQL.relative_to(ROOT)),
@@ -41,7 +42,7 @@ def build_plan_file(output_path: Path, sql_paths: List[str]) -> Path:
         fh.write("SET ECHO ON;\n")
         fh.write("SET FEEDBACK ON;\n")
         fh.write("SET SERVEROUTPUT ON;\n")
-        fh.write("WHENEVER SQLERROR EXIT SQL.SQLCODE;\n")
+        fh.write("WHENEVER SQLERROR CONTINUE;\n")
         fh.write("SPOOL data/output/plan_ejecucion_dw.log REPLACE;\n")
         fh.write("-- Si las tablas base estan en otro esquema, descomenta y ajusta:\n")
         fh.write("-- ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;\n")
