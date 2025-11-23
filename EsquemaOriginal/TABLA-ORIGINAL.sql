@@ -1,3 +1,6 @@
+-- Esquema dimensional de referencia para el sistema de pedidos sin ubicacion.
+-- Las extensiones de ciudad/provincia y el DW completo viven en scripts/sql.
+
 CREATE TABLE Dim_Producto (
   ProductoID NUMBER PRIMARY KEY,
   Descripcion VARCHAR2(50),
