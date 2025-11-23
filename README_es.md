@@ -1,6 +1,7 @@
 Resumen y pasos para implementar ETL y Data Warehouse (Ecuador - ciudades/provincias)
 
 Todos los scripts SQL y el ETL en Python viven ahora en una sola carpeta (`scripts/`) para evitar duplicados y facilitar su ejecución.
+Todos los scripts se consolidaron en rutas únicas (`sql/oltp/` y `sql/dw/`) para evitar duplicados y facilitar su ejecución.
 
 Componentes principales
 - `data/`: estructura organizada para datos crudos y salidas.
