@@ -1,6 +1,6 @@
 # Order & DW extensions (Ecuador)
 
-This repository contains SQL and ETL artifacts to extend a basic order schema with Ecuadorian city/province coverage and a full star-schema for reporting the top-selling product by time, category, and location.
+This repository contains SQL and ETL artifacts to extend a basic order schema with Ecuadorian city/province coverage and a full star-schema for reporting the top-selling product by time, category, and location. Legacy duplicate SQL files were removed so only the canonical, organized scripts under `sql/oltp/` and `sql/dw/` remain.
 
 ## What is included
 - **data/**: Organized layout for sources and outputs.

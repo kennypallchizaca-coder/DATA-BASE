@@ -1,5 +1,7 @@
 Resumen y pasos para implementar ETL y Data Warehouse (Ecuador - ciudades/provincias)
 
+Todos los scripts se consolidaron en rutas únicas (`sql/oltp/` y `sql/dw/`) para evitar duplicados y facilitar su ejecución.
+
 Componentes principales
 - `data/`: estructura organizada para datos crudos y salidas.
   - `data/raw/ciudades/EC.txt`: padrón de ciudades de Ecuador listo para uso offline.
