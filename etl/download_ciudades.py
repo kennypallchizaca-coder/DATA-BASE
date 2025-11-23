@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Descarga la lista de ciudades de Ecuador desde carta-natal.es y genera archivos CSV/SQL."""
+"""Descarga o lee la lista de ciudades de Ecuador y genera archivos CSV/SQL."""
 
 from __future__ import annotations
 
@@ -13,14 +13,17 @@ from typing import Iterable, List, Optional
 from urllib.parse import urljoin
 from zipfile import ZipFile
 
-import requests
-
 DESCARGAS_URL = "https://carta-natal.es/descargas/coordenadas.php"
 DEFAULT_ZIP_PATTERN = "https://carta-natal.es/descargas/ciudades/{code}.zip"
 DEFAULT_CODE = "EC"
 ROOT_DIR = Path(__file__).resolve().parents[1]
-DEFAULT_CSV = ROOT_DIR / "ciudades_ec.csv"
-DEFAULT_SQL = ROOT_DIR / "insert_ciudad.sql"
+DATA_DIR = ROOT_DIR / "data"
+RAW_DIR = DATA_DIR / "raw"
+RAW_CITY_DIR = RAW_DIR / "ciudades"
+DEFAULT_LOCAL_SOURCE = RAW_CITY_DIR / f"{DEFAULT_CODE}.txt"
+OUTPUT_DIR = DATA_DIR / "output" / "ciudades"
+DEFAULT_CSV = OUTPUT_DIR / "ciudades_ec.csv"
+DEFAULT_SQL = OUTPUT_DIR / "insert_ciudad.sql"
 
 
 @dataclass
@@ -78,6 +81,18 @@ def read_zip_payload(payload: bytes, code: str) -> str:
         target = next((n for n in names if n.lower().startswith(code.lower())), names[0])
         with zf.open(target) as fh:
             return decode_bytes(fh.read())
+
+
+def load_from_source(source: Path, code: str) -> str:
+    """
+    Lee datos desde un archivo local. Si es ZIP, extrae el primer archivo (o el que
+    comience con el código ISO). Si es texto plano, lo decodifica.
+    """
+
+    payload = source.read_bytes()
+    if source.suffix.lower() == ".zip":
+        return read_zip_payload(payload, code)
+    return decode_bytes(payload)
 
 
 def parse_ciudades(text: str) -> List[dict]:
@@ -175,15 +190,28 @@ def main() -> None:
     parser.add_argument("--code", default=DEFAULT_CODE, help="Código ISO del país (default: EC)")
     parser.add_argument("--csv", type=Path, default=DEFAULT_CSV, help="Ruta de salida para el CSV")
     parser.add_argument("--sql", type=Path, default=DEFAULT_SQL, help="Ruta de salida para el archivo SQL")
+    parser.add_argument(
+        "--source",
+        type=Path,
+        help="Ruta local (TXT o ZIP) para usar en lugar de descargar desde carta-natal.es",
+    )
     args = parser.parse_args()
 
-    session = requests.Session()
-    html = session.get(DESCARGAS_URL, timeout=30).text
-    download_url = find_download_url(html, args.code.upper())
-    payload = session.get(download_url, timeout=60)
-    payload.raise_for_status()
+    source_path = args.source
+    if source_path is None and DEFAULT_LOCAL_SOURCE.exists():
+        source_path = DEFAULT_LOCAL_SOURCE
 
-    text = read_zip_payload(payload.content, args.code.upper())
+    if source_path:
+        text = load_from_source(source_path, args.code.upper())
+    else:
+        import requests
+
+        session = requests.Session()
+        html = session.get(DESCARGAS_URL, timeout=30).text
+        download_url = find_download_url(html, args.code.upper())
+        payload = session.get(download_url, timeout=60)
+        payload.raise_for_status()
+        text = read_zip_payload(payload.content, args.code.upper())
     parsed = parse_ciudades(text)
     if not parsed:
         raise RuntimeError("No se pudo interpretar el contenido descargado")

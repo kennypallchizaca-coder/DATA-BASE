@@ -1,36 +1,44 @@
 Resumen y pasos para implementar ETL y Data Warehouse (Ecuador - ciudades/provincias)
 
 Componentes principales
+- `data/`: estructura organizada para datos crudos y salidas.
+  - `data/raw/ciudades/EC.txt`: padrón de ciudades de Ecuador listo para uso offline.
+  - `data/raw/jerarquia/`: PDF del censo y CSVs de provincias/cantones/parroquias que tú proporciones.
+  - `data/output/ciudades/`: destino por defecto de los archivos generados por el ETL.
+- `sql/01_create_ciudad.sql`: DDL independiente para crear `CIUDAD` con su secuencia y trigger.
 - `sql/TABLA.sql`: esquema base (dimensiones producto/tiempo/pedidos y `Fact_Ventas`) + definición de `CIUDAD`, secuencia y trigger de autonumeración.
 - `sql/02_alter_clientes_add_ciudad.sql`: agrega `CIUDADID` a `CLIENTES` y crea la FK hacia `CIUDAD`.
 - `sql/03_assign_random_ciudad.sql`: bloque PL/SQL que asigna ciudades aleatorias a los clientes existentes.
 - `sql/04_create_prov_cant_parro.sql`: tablas jerárquicas `PROVINCIAS`, `CANTONES`, `PARROQUIAS` con sus claves foráneas.
 - `sql/05_dw_schema_and_most_sold.sql`: dimensión categoría, dimensión ubicación (provincia/ciudad), hecho agregado y vista `VW_MAS_VENDIDO`.
-- `etl/download_ciudades.py`: ETL ligero para descargar el padrón de ciudades desde carta-natal.es, generar `ciudades_ec.csv` y un archivo de INSERTs para poblar `CIUDAD`.
+- `etl/download_ciudades.py`: ETL ligero para descargar el padrón de ciudades desde carta-natal.es, generar `ciudades_ec.csv` y un archivo de INSERTs para poblar `CIUDAD`. Detecta automáticamente `data/raw/ciudades/EC.txt` si está disponible.
 
 Flujo sugerido (ETL → DW)
-1. **Descargar y preparar ciudades (fuente carta-natal.es)**
+1. **Descargar y preparar ciudades (fuente carta-natal.es o archivo local)**
    - Requiere Python 3 y el paquete `requests`:
 
      ```pwsh
      python -m pip install --user requests
      ```
 
-   - Ejecutar el script (genera archivos en la raíz del repo, por defecto `ciudades_ec.csv` + `insert_ciudad.sql`):
+   - Ejecutar el script (genera archivos en `data/output/ciudades/` por defecto):
 
      ```pwsh
      python .\etl\download_ciudades.py
+
+     # O reutiliza el archivo local EC.txt para evitar descarga (ruta ya incluida por defecto):
+     python .\etl\download_ciudades.py --source .\data\raw\ciudades\EC.txt
      ```
 
    - Parámetros opcionales: `--code` (ISO, default EC), `--csv` y `--sql` para personalizar rutas.
    - Revisa `ciudades_ec.csv` antes de cargar; el script intenta detectar delimitadores y codificaciones, pero conviene validar manualmente.
 
 2. **Crear/popular tabla `CIUDAD`**
-   - En tu motor Oracle ejecuta la definición incluida en `sql/TABLA.sql` o solo el bloque correspondiente a `CIUDAD`.
+   - En tu motor Oracle ejecuta `sql/01_create_ciudad.sql` o el bloque equivalente en `sql/TABLA.sql`.
    - Carga los datos generados:
 
      ```pwsh
-     sqlplus usuario/clave@tns @.\insert_ciudad.sql
+     sqlplus usuario/clave@tns @.\data\output\ciudades\insert_ciudad.sql
      ```
 
      (También puedes usar SQL*Loader/External Table apuntando a `ciudades_ec.csv`).
