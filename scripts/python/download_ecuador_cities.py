@@ -20,10 +20,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 RAW_CITY_DIR = RAW_DIR / "ciudades"
-DEFAULT_LOCAL_SOURCE = RAW_CITY_DIR / f"{DEFAULT_CODE}.txt"
 OUTPUT_DIR = DATA_DIR / "output" / "ciudades"
 DEFAULT_CSV = OUTPUT_DIR / "ciudades_ec.csv"
 DEFAULT_SQL = OUTPUT_DIR / "insert_ciudad.sql"
+
+
+def local_source_path(code: str) -> Path:
+    """Devuelve la ruta del TXT local asociado al código ISO solicitado."""
+    return RAW_CITY_DIR / f"{code.upper()}.txt"
 
 
 @dataclass
@@ -197,21 +201,25 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    country_code = args.code.upper()
+
     source_path = args.source
-    if source_path is None and DEFAULT_LOCAL_SOURCE.exists():
-        source_path = DEFAULT_LOCAL_SOURCE
+    if source_path is None:
+        candidate = local_source_path(country_code)
+        if candidate.exists():
+            source_path = candidate
 
     if source_path:
-        text = load_from_source(source_path, args.code.upper())
+        text = load_from_source(source_path, country_code)
     else:
         import requests
 
         session = requests.Session()
         html = session.get(DESCARGAS_URL, timeout=30).text
-        download_url = find_download_url(html, args.code.upper())
+        download_url = find_download_url(html, country_code)
         payload = session.get(download_url, timeout=60)
         payload.raise_for_status()
-        text = read_zip_payload(payload.content, args.code.upper())
+        text = read_zip_payload(payload.content, country_code)
     parsed = parse_ciudades(text)
     if not parsed:
         raise RuntimeError("No se pudo interpretar el contenido descargado")
