@@ -1,5 +1,6 @@
 -- 01_create_ciudad.sql
 -- Crea la tabla CIUDAD en el esquema transaccional y deja lista la PK/autonumeración.
+-- Copia legada para compatibilidad; usa `sql/oltp/01_create_ciudad_table.sql` como versión mantenida y comentada.
 
 CREATE TABLE CIUDAD (
     CIUDADID     NUMBER(10)    PRIMARY KEY,

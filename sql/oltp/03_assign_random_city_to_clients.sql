@@ -1,4 +1,4 @@
--- 03_assign_random_ciudad.sql
+-- 03_assign_random_city_to_clients.sql
 -- Asigna aleatoriamente una ciudad a cada cliente existente (PL/SQL)
 
 BEGIN

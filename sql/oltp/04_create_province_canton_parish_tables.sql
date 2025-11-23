@@ -1,4 +1,4 @@
--- 04_create_prov_cant_parro.sql
+-- 04_create_province_canton_parish_tables.sql
 -- Crea tablas provincias, cantones y parroquias (estructura mínima)
 
 CREATE TABLE PROVINCIAS (
