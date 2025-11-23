@@ -16,8 +16,8 @@ from zipfile import ZipFile
 DESCARGAS_URL = "https://carta-natal.es/descargas/coordenadas.php"
 DEFAULT_ZIP_PATTERN = "https://carta-natal.es/descargas/ciudades/{code}.zip"
 DEFAULT_CODE = "EC"
-ROOT_DIR = Path(__file__).resolve().parents[1]
-DATA_DIR = ROOT_DIR / "data"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 RAW_CITY_DIR = RAW_DIR / "ciudades"
 DEFAULT_LOCAL_SOURCE = RAW_CITY_DIR / f"{DEFAULT_CODE}.txt"
