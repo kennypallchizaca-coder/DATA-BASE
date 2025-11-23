@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Descarga o lee la lista de ciudades de Ecuador y genera archivos CSV/SQL."""
+"""Descarga o lee la lista de ciudades de Ecuador y genera archivos CSV/SQL.
+
+El módulo se separa en funciones reutilizables para permitir que otros
+scripts (p.ej. un orquestador ETL) lo llamen de forma programática sin
+tener que recrear la lógica de CLI.
+"""
 
 from __future__ import annotations
 
@@ -189,6 +194,62 @@ def write_sql(rows: List[CiudadRow], path: Path) -> None:
             )
 
 
+def generate_catalog(
+    code: str = DEFAULT_CODE,
+    csv_path: Path = DEFAULT_CSV,
+    sql_path: Path = DEFAULT_SQL,
+    source_path: Optional[Path] = None,
+) -> int:
+    """Genera archivos CSV/SQL con el catálogo de ciudades.
+
+    Args:
+        code: Código ISO del país (EC por defecto).
+        csv_path: Ruta de salida para el CSV normalizado.
+        sql_path: Ruta de salida para el archivo de INSERTs.
+        source_path: Ruta local (TXT o ZIP) opcional; si no se pasa se
+            detecta `data/raw/ciudades/<code>.txt` y, si no existe, se
+            descarga desde carta-natal.es.
+
+    Returns:
+        Número de filas generadas.
+    """
+
+    country_code = code.upper()
+
+    selected_source = source_path
+    if selected_source is None:
+        candidate = local_source_path(country_code)
+        if candidate.exists():
+            selected_source = candidate
+
+    if selected_source:
+        text = load_from_source(selected_source, country_code)
+    else:
+        import requests
+
+        session = requests.Session()
+        html = session.get(DESCARGAS_URL, timeout=30).text
+        download_url = find_download_url(html, country_code)
+        payload = session.get(download_url, timeout=60)
+        payload.raise_for_status()
+        text = read_zip_payload(payload.content, country_code)
+
+    parsed = parse_ciudades(text)
+    if not parsed:
+        raise RuntimeError("No se pudo interpretar el contenido descargado")
+
+    rows = [
+        CiudadRow(idx + 1, item["nombre"], item["provincia"], item["latitud"], item["longitud"], item["zona_horaria"])
+        for idx, item in enumerate(parsed)
+    ]
+
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    sql_path.parent.mkdir(parents=True, exist_ok=True)
+    write_csv(rows, csv_path)
+    write_sql(rows, sql_path)
+    return len(rows)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Descarga y prepara catálogo de ciudades de Ecuador")
     parser.add_argument("--code", default=DEFAULT_CODE, help="Código ISO del país (default: EC)")
@@ -201,39 +262,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    country_code = args.code.upper()
-
-    source_path = args.source
-    if source_path is None:
-        candidate = local_source_path(country_code)
-        if candidate.exists():
-            source_path = candidate
-
-    if source_path:
-        text = load_from_source(source_path, country_code)
-    else:
-        import requests
-
-        session = requests.Session()
-        html = session.get(DESCARGAS_URL, timeout=30).text
-        download_url = find_download_url(html, country_code)
-        payload = session.get(download_url, timeout=60)
-        payload.raise_for_status()
-        text = read_zip_payload(payload.content, country_code)
-    parsed = parse_ciudades(text)
-    if not parsed:
-        raise RuntimeError("No se pudo interpretar el contenido descargado")
-
-    rows = [
-        CiudadRow(idx + 1, item["nombre"], item["provincia"], item["latitud"], item["longitud"], item["zona_horaria"])
-        for idx, item in enumerate(parsed)
-    ]
-
-    args.csv.parent.mkdir(parents=True, exist_ok=True)
-    args.sql.parent.mkdir(parents=True, exist_ok=True)
-    write_csv(rows, args.csv)
-    write_sql(rows, args.sql)
-    print(f"Se generaron {len(rows)} registros en {args.csv} y {args.sql}")
+    count = generate_catalog(code=args.code, csv_path=args.csv, sql_path=args.sql, source_path=args.source)
+    print(f"Se generaron {count} registros en {args.csv} y {args.sql}")
 
 
 if __name__ == "__main__":
