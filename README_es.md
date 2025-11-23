@@ -1,105 +1,76 @@
-Resumen y pasos para implementar ETL y Data Warehouse (Ecuador - ciudades/provincias)
+Guia rapida: ETL y DW con ubicacion (Ecuador)
 
-Todos los scripts SQL y el ETL en Python viven ahora en una sola carpeta (`scripts/`) para evitar duplicados y facilitar su ejecución.
-Todos los scripts se consolidaron en rutas únicas (`sql/oltp/` y `sql/dw/`) para evitar duplicados y facilitar su ejecución.
+Estructura de carpetas (lista de trabajo)
+- data/
+  - raw/ciudades/: fuentes GeoNames (EC.zip, admin1CodesASCII.txt). Coloca aqui cualquier EC.txt/zip local.
+  - raw/jerarquia/: espacio para CSVs del censo (provincias/cantones/parroquias) antes de cargarlos.
+  - Datos-Geograficos-Ecuador/: PDF oficial `CENSO_2016_TTHH_Listado_prov-cantones-parroquias.pdf`.
+  - output/ciudades/: resultados del ETL de ciudades (`ciudades_ec.csv`, `insert_ciudad.sql`).
+  - output/plan_ejecucion_dw.sql: plan que encadena todos los scripts SQL.
+- scripts/sql/oltp/: DDL para CIUDAD, FK en CLIENTES, asignacion aleatoria y jerarquia provincias-cantones-parroquias.
+- scripts/sql/dw/: Esquema estrella (dimensiones Tiempo, Categoria, Producto, Ubicacion) y vista VW_MAS_VENDIDO.
+- scripts/sql/etl/: Carga dimensional y de hechos desde las tablas transaccionales.
+- scripts/python/: Generacion de catalogo de ciudades y creador de plan de ejecucion.
+- EsquemaOriginal/TABLA-ORIGINAL.sql: esquema inicial de referencia previo a la ampliacion de ubicacion.
 
-Componentes principales
-- `data/`: estructura organizada para datos crudos y salidas.
-  - `data/raw/ciudades/EC.txt`: padrón de ciudades de Ecuador listo para uso offline.
-  - `data/raw/jerarquia/`: PDF del censo y CSVs de provincias/cantones/parroquias que tú proporciones.
-  - `data/output/ciudades/`: destino por defecto de los archivos generados por el ETL.
-- `scripts/sql/oltp/`: scripts para enriquecer el esquema transaccional con geografía.
-  - `01_create_ciudad_table.sql`: DDL independiente para crear `CIUDAD` con su secuencia y trigger.
-  - `02_add_ciudad_to_clientes.sql`: agrega `CIUDADID` a `CLIENTES` y crea la FK hacia `CIUDAD`.
-  - `03_assign_random_city_to_clients.sql`: bloque PL/SQL que asigna ciudades aleatorias a los clientes existentes.
-  - `04_create_province_canton_parish_tables.sql`: tablas jerárquicas `PROVINCIAS`, `CANTONES`, `PARROQUIAS` con sus claves foráneas.
-  - `base_transactional_schema_reference.sql`: esquema base de referencia con ejemplos de inserción en dimensiones.
-- `scripts/sql/dw/01_dw_star_schema_and_top_product_view.sql`: DDL completo del esquema estrella (tiempo, producto, categoría, ubicación con jerarquía provincia → cantón → parroquia/ciudad), tabla de hechos con medidas y vista `VW_MAS_VENDIDO`.
-- `scripts/sql/etl/load_dw_from_oltp.sql`: script ETL en SQL que alimenta las dimensiones (incluyendo el cruce con el censo) y carga la tabla de hechos desde `ORDENES`/`DETALLE_ORDENES`.
-- `scripts/python/download_ecuador_cities.py`: ETL ligero para descargar el padrón de ciudades desde carta-natal.es, generar `ciudades_ec.csv` y un archivo de INSERTs para poblar `CIUDAD`. Detecta automáticamente `data/raw/ciudades/EC.txt` si está disponible.
-- `scripts/python/run_full_etl_pipeline.py`: envoltorio en Python que genera el catálogo de ciudades y crea un plan `plan_ejecucion_dw.sql` que encadena todos los scripts SQL (OLTP + DW).
+Pasos recomendados
+1) Generar catalogo de ciudades (usa GeoNames EC.zip; no necesita librerias externas):
+   pwsh
+   python .\scripts\python\download_ecuador_cities.py
+   # Si ya tienes un EC.txt/EC.zip local:
+   python .\scripts\python\download_ecuador_cities.py --source .\data\raw\ciudades\EC.txt
 
-### Cómo funciona el código Python (comentado)
+2) Construir plan completo (crea data/output/plan_ejecucion_dw.sql):
+   pwsh
+   python .\scripts\python\run_full_etl_pipeline.py
+   # Saltar regenerar ciudades:
+   python .\scripts\python\run_full_etl_pipeline.py --skip-cities
 
-- `download_ecuador_cities.py`
-  - Función reutilizable `generate_catalog(...)`: recibe el código ISO, rutas de salida y (opcionalmente) un TXT/ZIP local; si no se indica fuente, busca `data/raw/ciudades/<CODE>.txt` y, si no existe, descarga el ZIP oficial y lo decodifica.
-  - Normaliza el contenido (detecta delimitadores, encabezados, codificación y coordenadas), lo convierte en objetos `CiudadRow` y exporta tanto a CSV como a un archivo de `INSERT` listo para Oracle.
-  - La función `main()` solo parsea argumentos y llama a `generate_catalog`, por lo que otros scripts pueden reutilizar la lógica sin modificarla.
-- `run_full_etl_pipeline.py`
-  - Usa `generate_catalog` para asegurar que el padrón de ciudades se genere antes de cargar la BD.
-  - Construye automáticamente `data/output/plan_ejecucion_dw.sql` con la secuencia recomendada de scripts: crear `CIUDAD`, añadir la FK a `CLIENTES`, asignar ciudades, crear jerarquía geográfica, desplegar el esquema estrella y ejecutar el ETL.
-  - No se conecta a la BD: solo deja preparados los artefactos y el plan a ejecutar en SQL*Plus/SQLcl.
+3) Ejecutar en Oracle (SQL*Plus/SQLcl) desde la raiz del repo:
+   sqlplus usuario/clave@tns @data/output/plan_ejecucion_dw.sql
+   El plan incluye, en orden: crear CIUDAD, agregar FK en CLIENTES, asignar ciudades a clientes, crear provincias/cantones/parroquias, desplegar el DW y correr el ETL.
 
-Flujo sugerido (ETL → DW)
-1. **Descargar y preparar ciudades (fuente carta-natal.es o archivo local)**
-   - Requiere Python 3 y el paquete `requests`:
+Paso a paso (ejecucion funcional end-to-end)
+1) Preparar dependencias: solo Python 3; opcional `requests` para descarga TLS (`python -m pip install --user requests`).
+2) Generar ciudades (GeoNames): `python .\scripts\python\download_ecuador_cities.py` → crea `data/output/ciudades/ciudades_ec.csv` e `insert_ciudad.sql`. Con fuente local: `python .\scripts\python\download_ecuador_cities.py --source .\data\raw\ciudades\EC.txt`.
+3) Crear plan SQL (orden de ejecucion): `python .\scripts\python\run_full_etl_pipeline.py` → genera `data/output/plan_ejecucion_dw.sql`.
+4) Cargar jerarquia prov/canton/parroquia: convierte `data/Datos-Geograficos-Ecuador/CENSO_2016_TTHH_Listado_prov-cantones-parroquias.pdf` a CSV y carga en `PROVINCIAS`, `CANTONES`, `PARROQUIAS` (SQL*Loader o INSERT masivo) antes de correr el ETL para enlazar ubicacion completa.
+5) Ejecutar en Oracle con VS Code (SQLTools/Oracle Driver): crea conexion a `localhost:1521`, servicio `XEPDB1`, usuario/clave del esquema dueño de CLIENTES/ORDENES/PRODUCTOS/DETALLE_ORDENES. Abre un editor SQL y ejecuta `@data/output/plan_ejecucion_dw.sql`. El plan crea el esquema base (`EsquemaOriginal/TABLA-ORIGINAL.sql`), valida que las tablas existan, carga ciudades (`@data/output/ciudades/insert_ciudad.sql`), asigna ciudades a clientes, y genera log en `data/output/plan_ejecucion_dw.log`.
+6) Validar: revisa el log `data/output/plan_ejecucion_dw.log` y corre `SELECT fecha, categoria, provincia, ciudad, producto, total_vendido FROM VW_MAS_VENDIDO FETCH FIRST 20 ROWS ONLY;`. Si falta ubicacion, verifica que CLIENTES tenga CIUDADID y que `DW_DIM_UBICACION` no este vacia (fuera de la fila DESCONOCIDA).
+Tip: si tus tablas base estan en otro esquema, antes de ejecutar el plan activa el esquema con `ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;` (o crea sinonimos). El plan trae el comentario para descomentar esa linea.
 
-     ```pwsh
-     python -m pip install --user requests
-     ```
+Detalle de scripts SQL (OLTP)
+- 01_create_ciudad_table.sql: crea CIUDAD (ciudadid, nombre, provincia, latitud, longitud, zona_horaria) con secuencia y trigger.
+- 02_add_ciudad_to_clientes.sql: agrega CIUDADID a CLIENTES y FK FK_CLIENTES_CIUDAD.
+- 03_assign_random_city_to_clients.sql: bloque PL/SQL que asigna CIUDADID aleatoria a clientes sin valor.
+- 04_create_province_canton_parish_tables.sql: tablas PROVINCIAS, CANTONES y PARROQUIAS con triggers y secuencias.
+- base_transactional_schema_reference.sql: referencia del esquema inicial Dim_Producto, Dim_Tiempo, Dim_Pedidos y Fact_Ventas basado en PRODUCTOS/ORDENES/DETALLE_ORDENES.
 
-   - Ejecutar el script (genera archivos en `data/output/ciudades/` por defecto):
+Detalle de scripts SQL (DW/ETL)
+- dw/01_dw_star_schema_and_top_product_view.sql: crea las dimensiones Tiempo, Categoria, Producto, Ubicacion; tabla de hechos DW_FACT_VENTAS; vista VW_MAS_VENDIDO para el producto top por fecha/categoria/ubicacion.
+- etl/load_dw_from_oltp.sql: carga dimensiones (incluye fila DESCONOCIDA en ubicacion) y alimenta DW_FACT_VENTAS usando ORDENES, DETALLE_ORDENES, PRODUCTOS, CLIENTES y CIUDAD; calcula MontoTotal considerando DESCUENTO.
 
-     ```pwsh
-     python .\scripts\python\download_ecuador_cities.py
+Python
+- download_ecuador_cities.py: descarga/parsing de GeoNames EC.zip, deduplica ciudades (feature class P), genera CSV e INSERTs listos para CIUDAD.
+- run_full_etl_pipeline.py: orquesta la generacion de ciudades y arma el plan_ejecucion_dw.sql que encadena todos los scripts.
 
-     # O reutiliza el archivo local EC.txt para evitar descarga (ruta ya incluida por defecto):
-     python .\scripts\python\download_ecuador_cities.py --source .\data\raw\ciudades\EC.txt
-     ```
-
-   - Parámetros opcionales: `--code` (ISO, default EC), `--csv` y `--sql` para personalizar rutas.
-   - Revisa `ciudades_ec.csv` antes de cargar; el script intenta detectar delimitadores y codificaciones, pero conviene validar manualmente.
-
-2. **Crear/popular tabla `CIUDAD`**
-   - En tu motor Oracle ejecuta `scripts/sql/oltp/01_create_ciudad_table.sql` o el bloque equivalente en `scripts/sql/oltp/base_transactional_schema_reference.sql`.
-   - Carga los datos generados:
-
-     ```pwsh
-     sqlplus usuario/clave@tns @.\data\output\ciudades\insert_ciudad.sql
-     ```
-
-     (También puedes usar SQL*Loader/External Table apuntando a `ciudades_ec.csv`).
-
-3. **Relacionar clientes con ciudades**
-   - Ejecuta los scripts para añadir el campo y asignar valores:
-
-     ```pwsh
-     sqlplus usuario/clave@tns @.\scripts\sql\oltp\02_add_ciudad_to_clientes.sql
-     sqlplus usuario/clave@tns @.\scripts\sql\oltp\03_assign_random_city_to_clients.sql
-     ```
-
-   - Modifica el bloque PL/SQL si prefieres estrategias determinísticas (p.ej. por provincia conocida en otra tabla).
-
-4. **Crear esquema de provincias / cantones / parroquias**
-   - Ejecuta `scripts/sql/oltp/04_create_province_canton_parish_tables.sql` para la estructura.
-   - Descarga los datos de https://github.com/vfabianfarias/Datos-Geograficos-Ecuador o del PDF oficial del MTOP (https://www.obraspublicas.gob.ec/.../CENSO_2016_TTHH_Listado_prov-cantones-parroquias.pdf).
-   - Usa SQL*Loader, external tables o convierte los CSV en INSERTs para poblar cada tabla respetando la jerarquía.
-
-5. **Implementar el Data Warehouse**
-   - Asegura que las dimensiones base (`Dim_Producto`, `Dim_Tiempo`, `Dim_Pedidos`) y `Fact_Ventas` estén pobladas.
-   - Ejecuta `scripts/sql/dw/01_dw_star_schema_and_top_product_view.sql` para crear `Dim_Categoria`, `Dim_Ubicacion`, la tabla de hechos con medidas y la vista `VW_MAS_VENDIDO`.
-   - Corre `scripts/sql/etl/load_dw_from_oltp.sql` para poblar las dimensiones (incluido el lookup de provincia/cantón/parroquia vía censo) y cargar `Fact_Ventas` con `CantidadVendida` y `MontoTotal`.
-   - El script espera que `PRODUCTOS` tenga una columna `CATEGORIA`; ajusta nombres o agrega lookups si en tu modelo difiere.
-
-6. **Consultar el producto más vendido**
-   - Usa la vista `VW_MAS_VENDIDO` para obtener, por día/categoría/provincia/ciudad, qué producto tuvo la mayor venta (suma de `CantidadVendida`).
-   - Ejemplo:
-
-     ```sql
-     SELECT fecha, categoria, provincia, ciudad, producto, total_vendido
-     FROM VW_MAS_VENDIDO
-     WHERE fecha BETWEEN DATE '2025-01-01' AND DATE '2025-12-31';
-     ```
-
-Esquema estrella (resumen DDL)
-- **Dim_Tiempo**: `TiempoID`, `Fecha`, `Año`, `Mes`, `Trimestre`, `DiaSemana`.
-- **Dim_Producto** + **Dim_Categoria**: detalle de producto con clave hacia `Dim_Categoria` (derivada de `PRODUCTOS.CATEGORIA`).
-- **Dim_Ubicacion**: clave surrogate y jerarquía `Provincia → Cantón → Parroquia/Ciudad` cruzando tablas de censo (`PROVINCIAS`, `CANTONES`, `PARROQUIAS`) con la tabla transaccional `CIUDAD`.
-- **Fact_Ventas**: referencias a todas las dimensiones (`ProductoID`, `TiempoID`, `PedidoID`, `UbicacionID`, `CategoriaID`) y medidas `CantidadVendida`, `MontoTotal`.
-- **VW_MAS_VENDIDO**: vista que agrega `Fact_Ventas` y devuelve el producto top por corte de tiempo/categoría/ubicación.
+Consultas utiles
+- Producto mas vendido por dia/categoria/provincia/ciudad:
+  SELECT fecha, categoria, provincia, ciudad, producto, total_vendido FROM VW_MAS_VENDIDO;
 
 Notas
-- El script `download_ecuador_cities.py` solo genera archivos locales; no ejecuta INSERTs en Oracle. Valida los datos antes de cargarlos.
-- Si necesitas automatizar la carga directa (usando `cx_Oracle` o `oracledb`), indícalo para extender el script con conexión y ejecución segura.
-- Para provincias/cantones/parroquias se recomienda normalizar mayúsculas/minúsculas y códigos para facilitar joins con `CIUDAD` o `Dim_Ubicacion`.
-- `scripts/sql/oltp/base_transactional_schema_reference.sql` incluye ejemplos de inserción en las dimensiones base; adapta las fuentes (`PRODUCTOS`, `ORDENES`, `DETALLE_ORDENES`) según tu esquema transaccional real.
+- Usa ASCII en nombres de columnas (Anio, Categoria) para evitar problemas de codificacion.
+- Las tablas PROVINCIAS/CANTONES/PARROQUIAS pueden poblarse a partir del PDF CENSO_2016_TTHH_Listado_prov-cantones-parroquias.pdf (data/Datos-Geograficos-Ecuador/). Convierte a CSV/INSERTs respetando los codigos y ejecuta con SQL*Loader o INSERT masivo antes del ETL.
+- Si tu modelo transaccional cambia nombres de columnas (p. ej. PRECIOUNIT), ajusta los scripts ETL en consecuencia.
+
+Conexion y ejecucion desde VS Code (SQLTools / Oracle)
+- Plugin: instala "SQLTools" y "SQLTools Oracle Driver". Crea una conexion con estos datos (ajusta usuario/clave a los tuyos):
+  - Hostname: localhost
+  - Port: 1521
+  - Type: Service Name
+  - Service Name: XEPDB1
+  - Username: tu_usuario (ej. alexis2)
+  - Password: tu_clave
+- Guarda la conexion, abre un editor SQL y ejecuta:
+  @data/output/plan_ejecucion_dw.sql
+- Si prefieres CLI: `sqlplus usuario/clave@localhost:1521/XEPDB1 @data/output/plan_ejecucion_dw.sql`.

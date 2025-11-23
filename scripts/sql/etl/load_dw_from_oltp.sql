@@ -1,134 +1,144 @@
--- load_dw_from_oltp.sql
--- Flujo ETL (Extract, Transform, Load) para poblar el Data Warehouse.
--- Pasos: extraer pedidos/detalles/clientes, cruzar ubicación con censo,
--- hidratar dimensiones y cargar Fact_Ventas.
+-- Carga dimensional y de hechos desde el esquema transaccional hacia el DW.
+-- Supone que los objetos de DW ya fueron creados (ver dw/01_dw_star_schema_and_top_product_view.sql).
+-- Incluye fila "DESCONOCIDA" para casos sin ciudad asignada.
 
-PROMPT Iniciando ETL DW...
+-- Fila para ubicacion desconocida.
+DECLARE
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count FROM DW_DIM_UBICACION WHERE UbicacionID = 0;
+    IF v_count = 0 THEN
+        INSERT INTO DW_DIM_UBICACION (UbicacionID, Provincia, Ciudad)
+        VALUES (0, 'DESCONOCIDA', 'DESCONOCIDA');
+    END IF;
+    COMMIT;
+END;
+/
 
--------------------------------------------------------------------------------
--- 1) Preparar dimensiones base desde el OLTP
--------------------------------------------------------------------------------
-PROMPT Refrescando Dim_Tiempo desde ORDENES.FECHAORDEN;
-DELETE FROM Dim_Tiempo;
-INSERT INTO Dim_Tiempo (TiempoID, Fecha, Año, Mes, Trimestre, DiaSemana)
-SELECT
-  ROW_NUMBER() OVER (ORDER BY fecha) AS TiempoID,
-  fecha,
-  EXTRACT(YEAR FROM fecha) AS Año,
-  EXTRACT(MONTH FROM fecha) AS Mes,
-  CEIL(EXTRACT(MONTH FROM fecha) / 3) AS Trimestre,
-  TO_CHAR(fecha, 'Day', 'NLS_DATE_LANGUAGE=SPANISH') AS DiaSemana
-FROM (
-  SELECT DISTINCT FECHAORDEN AS fecha FROM ORDENES
-);
-COMMIT;
-
-PROMPT Refrescando Dim_Producto y Dim_Categoria desde PRODUCTOS;
-MERGE INTO Dim_Categoria c
+-- Dimension Tiempo.
+MERGE INTO DW_DIM_TIEMPO d
 USING (
-  SELECT DISTINCT CATEGORIA FROM PRODUCTOS WHERE CATEGORIA IS NOT NULL
-) src
-ON (c.Nombre = src.CATEGORIA)
+    SELECT DISTINCT
+        FECHAORDEN AS Fecha,
+        EXTRACT(YEAR FROM FECHAORDEN) AS Anio,
+        EXTRACT(MONTH FROM FECHAORDEN) AS Mes,
+        CEIL(EXTRACT(MONTH FROM FECHAORDEN) / 3) AS Trimestre,
+        TO_CHAR(FECHAORDEN, 'Day') AS DiaSemana
+    FROM ORDENES
+) s
+ON (d.Fecha = s.Fecha)
 WHEN NOT MATCHED THEN
-  INSERT (CategoriaID, Nombre) VALUES (SEQ_CATEGORIA.NEXTVAL, src.CATEGORIA);
+    INSERT (TiempoID, Fecha, Anio, Mes, Trimestre, DiaSemana)
+    VALUES (SEQ_DW_DIM_TIEMPO.NEXTVAL, s.Fecha, s.Anio, s.Mes, s.Trimestre, s.DiaSemana);
 
-MERGE INTO Dim_Producto d
+COMMIT;
+
+-- Dimension Categoria (derivada de PRODUCTOS.CATEGORIA).
+MERGE INTO DW_DIM_CATEGORIA c
 USING (
-  SELECT PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA FROM PRODUCTOS
-) src
-ON (d.ProductoID = src.PRODUCTOID)
-WHEN MATCHED THEN
-  UPDATE SET d.Descripcion = src.DESCRIPCION,
-             d.PrecioUnitario = src.PRECIOUNIT
+    SELECT DISTINCT NVL(TRIM(CATEGORIA), 'SIN CATEGORIA') AS Nombre
+    FROM PRODUCTOS
+) s
+ON (UPPER(c.Nombre) = UPPER(s.Nombre))
 WHEN NOT MATCHED THEN
-  INSERT (ProductoID, Descripcion, PrecioUnitario)
-  VALUES (src.PRODUCTOID, src.DESCRIPCION, src.PRECIOUNIT);
+    INSERT (CategoriaID, Nombre)
+    VALUES (SEQ_DW_DIM_CATEGORIA.NEXTVAL, s.Nombre);
 
--- Mapear producto -> categoría
-UPDATE Dim_Producto dp
-SET CategoriaID = (
-  SELECT c.CategoriaID FROM Dim_Categoria c WHERE c.Nombre = (
-    SELECT p.CATEGORIA FROM PRODUCTOS p WHERE p.PRODUCTOID = dp.ProductoID
-  )
-)
-WHERE EXISTS (
-  SELECT 1 FROM PRODUCTOS p WHERE p.PRODUCTOID = dp.ProductoID AND p.CATEGORIA IS NOT NULL
-);
 COMMIT;
 
--------------------------------------------------------------------------------
--- 2) Construir la dimensión geográfica cruzando CIUDAD con el censo
--------------------------------------------------------------------------------
-PROMPT Refrescando Dim_Ubicacion a partir de PROVINCIAS/CANTONES/PARROQUIAS y CIUDAD;
-DELETE FROM Dim_Ubicacion;
+-- Dimension Producto (usa el mismo ProductoID del OLTP).
+MERGE INTO DW_DIM_PRODUCTO dp
+USING (
+    SELECT p.PRODUCTOID,
+           p.DESCRIPCION,
+           p.PRECIOUNIT,
+           NVL(TRIM(p.CATEGORIA), 'SIN CATEGORIA') AS CATEGORIA
+    FROM PRODUCTOS p
+) s
+ON (dp.ProductoID = s.PRODUCTOID)
+WHEN NOT MATCHED THEN
+    INSERT (ProductoID, CategoriaID, Descripcion, PrecioUnitario)
+    VALUES (
+        s.PRODUCTOID,
+        (SELECT CategoriaID FROM DW_DIM_CATEGORIA WHERE UPPER(Nombre) = UPPER(s.CATEGORIA)),
+        s.DESCRIPCION,
+        s.PRECIOUNIT
+    )
+WHEN MATCHED THEN UPDATE
+    SET dp.Descripcion   = s.DESCRIPCION,
+        dp.PrecioUnitario = s.PRECIOUNIT,
+        dp.CategoriaID   = (SELECT CategoriaID FROM DW_DIM_CATEGORIA WHERE UPPER(Nombre) = UPPER(s.CATEGORIA));
 
--- Inserta ubicaciones exactas por parroquia (parroquia = ciudad en muchos cantones)
-INSERT INTO Dim_Ubicacion (
-  UbicacionID, Provincia, Canton, Parroquia, Ciudad,
-  ProvinciaID, CantonID, ParroquiaID, CiudadID
-)
-SELECT
-  SEQ_UBICACION.NEXTVAL,
-  p.NOMBRE AS Provincia,
-  ca.NOMBRE AS Canton,
-  pa.NOMBRE AS Parroquia,
-  NVL(ci.NOMBRE, pa.NOMBRE) AS Ciudad,
-  p.PROVINCIAID,
-  ca.CANTONID,
-  pa.PARROQUIAID,
-  ci.CIUDADID
-FROM PARROQUIAS pa
-JOIN CANTONES ca ON pa.CANTONID = ca.CANTONID
-JOIN PROVINCIAS p ON ca.PROVINCIAID = p.PROVINCIAID
-LEFT JOIN CIUDAD ci ON UPPER(ci.NOMBRE) = UPPER(pa.NOMBRE);
-
--- Inserta ciudades que no hicieron match con parroquia (fuente carta-natal.es)
-INSERT INTO Dim_Ubicacion (
-  UbicacionID, Provincia, Canton, Parroquia, Ciudad,
-  ProvinciaID, CantonID, ParroquiaID, CiudadID
-)
-SELECT
-  SEQ_UBICACION.NEXTVAL,
-  NVL(ci.PROVINCIA, 'SIN PROVINCIA'),
-  NULL,
-  NULL,
-  ci.NOMBRE,
-  NULL,
-  NULL,
-  NULL,
-  ci.CIUDADID
-FROM CIUDAD ci
-WHERE NOT EXISTS (
-  SELECT 1 FROM Dim_Ubicacion u WHERE u.CiudadID = ci.CIUDADID
-);
 COMMIT;
 
--------------------------------------------------------------------------------
--- 3) Cargar la tabla de hechos con medidas Cantidad/Monto
--------------------------------------------------------------------------------
-PROMPT Recalculando Fact_Ventas (se vacía para evitar duplicados);
-DELETE FROM Fact_Ventas;
+-- Dimension Ubicacion (provincia + ciudad, con enlaces a jerarquia si existe).
+MERGE INTO DW_DIM_UBICACION u
+USING (
+    SELECT DISTINCT
+        c.CIUDADID,
+        c.NOMBRE AS Ciudad,
+        TRIM(c.PROVINCIA) AS Provincia,
+        p.PROVINCIAID,
+        NULL AS CANTONID,
+        NULL AS PARROQUIAID
+    FROM CIUDAD c
+    LEFT JOIN PROVINCIAS p ON UPPER(p.NOMBRE) = UPPER(TRIM(c.PROVINCIA))
+) s
+ON (u.CiudadID = s.CIUDADID)
+WHEN NOT MATCHED THEN
+    INSERT (UbicacionID, ProvinciaID, CantonID, ParroquiaID, CiudadID, Provincia, Canton, Parroquia, Ciudad)
+    VALUES (
+        SEQ_DW_DIM_UBICACION.NEXTVAL,
+        s.PROVINCIAID,
+        s.CANTONID,
+        s.PARROQUIAID,
+        s.CIUDADID,
+        s.Provincia,
+        NULL,
+        NULL,
+        s.Ciudad
+    )
+WHEN MATCHED THEN UPDATE
+    SET u.ProvinciaID = s.PROVINCIAID,
+        u.CantonID    = s.CANTONID,
+        u.ParroquiaID = s.PARROQUIAID,
+        u.Provincia   = s.Provincia,
+        u.Ciudad      = s.Ciudad;
 
-INSERT INTO Fact_Ventas (
-  VentaID, ProductoID, TiempoID, PedidoID, UbicacionID, CategoriaID,
-  CantidadVendida, MontoTotal
-)
-SELECT
-  SEQ_FACT_VENTAS.NEXTVAL,
-  d.PRODUCTOID,
-  t.TiempoID,
-  o.ORDENID,
-  u.UbicacionID,
-  dp.CategoriaID,
-  d.CANTIDAD,
-  d.CANTIDAD * NVL(dp.PrecioUnitario, 0) AS MontoTotal
-FROM DETALLE_ORDENES d
-JOIN ORDENES o ON d.ORDENID = o.ORDENID
-JOIN Dim_Tiempo t ON t.Fecha = o.FECHAORDEN
-JOIN Dim_Producto dp ON dp.ProductoID = d.PRODUCTOID
-LEFT JOIN CLIENTES cl ON o.CLIENTEID = cl.CLIENTEID
-LEFT JOIN Dim_Ubicacion u ON u.CiudadID = cl.CIUDADID
-;
 COMMIT;
 
-PROMPT ETL DW finalizado. Consulta VW_MAS_VENDIDO para el top de productos.
+-- Hecho de ventas: agrega ubicacion y categoria al hecho de pedidos.
+MERGE INTO DW_FACT_VENTAS f
+USING (
+    SELECT
+        d.PRODUCTOID,
+        o.ORDENID AS PedidoID,
+        t.TiempoID,
+        NVL(u.UbicacionID, 0) AS UbicacionID,
+        (SELECT CategoriaID FROM DW_DIM_CATEGORIA WHERE UPPER(Nombre) = UPPER(NVL(p.CATEGORIA, 'SIN CATEGORIA'))) AS CategoriaID,
+        SUM(d.CANTIDAD) AS CantidadVendida,
+        SUM(d.CANTIDAD * d.PRECIOUNIT * (1 - NVL(o.DESCUENTO, 0) / 100)) AS MontoTotal
+    FROM DETALLE_ORDENES d
+    JOIN ORDENES o ON d.ORDENID = o.ORDENID
+    JOIN PRODUCTOS p ON p.PRODUCTOID = d.PRODUCTOID
+    JOIN DW_DIM_TIEMPO t ON t.Fecha = o.FECHAORDEN
+    LEFT JOIN CLIENTES cli ON cli.CLIENTEID = o.CLIENTEID
+    LEFT JOIN CIUDAD c ON c.CIUDADID = cli.CIUDADID
+    LEFT JOIN DW_DIM_UBICACION u ON u.CiudadID = c.CIUDADID
+    GROUP BY d.PRODUCTOID, o.ORDENID, t.TiempoID, NVL(u.UbicacionID, 0), NVL(p.CATEGORIA, 'SIN CATEGORIA')
+) s
+ON (
+    f.ProductoID  = s.PRODUCTOID
+    AND f.PedidoID   = s.PedidoID
+    AND f.TiempoID   = s.TiempoID
+    AND f.UbicacionID = s.UbicacionID
+)
+WHEN NOT MATCHED THEN
+    INSERT (FactID, ProductoID, TiempoID, UbicacionID, PedidoID, CategoriaID, CantidadVendida, MontoTotal)
+    VALUES (SEQ_DW_FACT_VENTAS.NEXTVAL, s.PRODUCTOID, s.TiempoID, s.UbicacionID, s.PedidoID, s.CategoriaID, s.CantidadVendida, s.MontoTotal)
+WHEN MATCHED THEN UPDATE
+    SET f.CantidadVendida = s.CantidadVendida,
+        f.MontoTotal      = s.MontoTotal,
+        f.CategoriaID     = s.CategoriaID;
+
+COMMIT;

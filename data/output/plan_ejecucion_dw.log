@@ -1,0 +1,14 @@
+SQL> -- Si las tablas base estan en otro esquema, descomenta y ajusta:
+SQL> -- ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;
+SQL> @EsquemaOriginal/TABLA-ORIGINAL.sql
+SQL> CREATE TABLE Dim_Producto (
+  2    ProductoID NUMBER PRIMARY KEY,
+  3    Descripcion VARCHAR2(50),
+  4    PrecioUnitario NUMBER(10,2)
+  5  );
+CREATE TABLE Dim_Producto (
+             *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
+
+

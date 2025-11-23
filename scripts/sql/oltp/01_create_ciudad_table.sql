@@ -1,5 +1,6 @@
--- 01_create_ciudad_table.sql
--- Crea la tabla CIUDAD en el esquema transaccional y deja lista la PK/autonumeración.
+-- Crea tabla CIUDAD y objetos de soporte. Pensada para Oracle.
+-- Ejecutar con privilegios sobre el esquema transaccional (donde viven CLIENTES).
+-- Estructura simple para almacenar nombre/provincia y coordenadas de referencia.
 
 CREATE TABLE CIUDAD (
     CIUDADID     NUMBER(10)    PRIMARY KEY,
@@ -11,21 +12,17 @@ CREATE TABLE CIUDAD (
 );
 
 CREATE SEQUENCE SEQ_CIUDAD
-  START WITH 1
-  INCREMENT BY 1
-  NOCACHE
-  NOCYCLE;
+    START WITH 1
+    INCREMENT BY 1
+    NOCACHE
+    NOCYCLE;
 
 CREATE OR REPLACE TRIGGER TRG_CIUDAD_BI
 BEFORE INSERT ON CIUDAD
 FOR EACH ROW
 BEGIN
-  IF :NEW.CIUDADID IS NULL THEN
-    :NEW.CIUDADID := SEQ_CIUDAD.NEXTVAL;
-  END IF;
+    IF :NEW.CIUDADID IS NULL THEN
+        :NEW.CIUDADID := SEQ_CIUDAD.NEXTVAL;
+    END IF;
 END;
 /
-
--- Carga sugerida:
--- 1) Genera insert_ciudad.sql con el ETL (etl/download_ciudades.py --source ./data/raw/ciudades/EC.txt)
--- 2) En Oracle, ejecuta:  @./data/output/ciudades/insert_ciudad.sql
