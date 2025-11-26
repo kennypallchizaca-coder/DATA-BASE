@@ -36,7 +36,7 @@ class CityRow:
 
 
 def _root_dir() -> Path:
-    return Path(__file__).resolve().parents[2]
+    return Path(__file__).resolve().parents[3]
 
 
 def download_file(url: str, dest: Path) -> Path:

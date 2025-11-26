@@ -1,0 +1,1400 @@
+CODIGO,CANTON_CODIGO,NOMBRE
+010101,0101,Bellavista
+010102,0101,CaÃ±aribamba
+010103,0101,El BatÃ¡n
+010104,0101,El Sagrario
+010105,0101,El Vecino
+010106,0101,Gil RamÃ­rez DÃ¡valos
+010107,0101,HuaynacÃ¡pac
+010108,0101,MachÃ¡ngara
+010109,0101,Monay
+010110,0101,San Blas
+010111,0101,San SebastiÃ¡n
+010112,0101,Sucre
+010113,0101,Totoracocha
+010114,0101,Yanuncay
+010115,0101,Hermano Miguel
+010116,0101,Cuenca
+010117,0101,BaÃ±os
+010118,0101,Cumbe
+010119,0101,Chaucha
+010120,0101,Checa (Jidcay)
+010121,0101,Chiquintad
+010122,0101,Llacao
+010123,0101,Molleturo
+010124,0101,Nulti
+010125,0101,Octavio Cordero Palacios (Santa Rosa)
+010126,0101,Paccha
+010127,0101,Quingeo
+010128,0101,Ricaurte
+010129,0101,San JoaquÃ­n
+010130,0101,Santa Ana
+010131,0101,SayausÃ­
+010132,0101,Sidcay
+010133,0101,Sinincay
+010134,0101,Tarqui
+010135,0101,Turi
+010136,0101,Valle
+010137,0101,Victoria del Portete (Irquis)
+010201,0102,GirÃ³n
+010202,0102,AsunciÃ³n
+010203,0102,San Gerardo
+010301,0103,Gualaceo
+010302,0103,Chordeleg
+010303,0103,Daniel CÃ³rdova Toral (El Oriente)
+010304,0103,JadÃ¡n
+010305,0103,Mariano Moreno
+010306,0103,Principal
+010307,0103,Remigio Crespo Toral (GÃºlag)
+010308,0103,San Juan
+010309,0103,Zhidmad
+010310,0103,Luis Cordero Vega
+010311,0103,SimÃ³n BolÃ­var (Cab. En GaÃ±anzol)
+010401,0104,NabÃ³n
+010402,0104,Cochapata
+010403,0104,El Progreso (Cab.En Zhota)
+010404,0104,Las Nieves (Chaya)
+010405,0104,OÃ±a
+010501,0105,Paute
+010502,0105,Amaluza
+010503,0105,BulÃ¡n (JosÃ© VÃ­ctor Izquierdo)
+010504,0105,ChicÃ¡n (Guillermo Ortega)
+010505,0105,El Cabo
+010506,0105,Guachapala
+010507,0105,Guarainag
+010508,0105,Palmas
+010509,0105,Pan
+010510,0105,San CristÃ³bal (Carlos OrdÃ³Ã±ez Lazo)
+010511,0105,Sevilla de Oro
+010512,0105,Tomebamba
+010513,0105,Dug Dug
+010601,0106,PucarÃ¡
+010602,0106,Camilo Ponce EnrÃ­quez (Cab. En RÃ­o 7 de Mollepongo)
+010603,0106,San Rafael de Sharug
+010701,0107,San Fernando
+010702,0107,ChumblÃ­n
+010801,0108,Santa Isabel (Chaguarurco)
+010802,0108,AbdÃ³n CalderÃ³n (La UniÃ³n)
+010803,0108,El Carmen de PijilÃ­
+010804,0108,Zhaglli (Shaglli)
+010805,0108,San Salvador de CaÃ±aribamba
+010901,0109,Sigsig
+010902,0109,Cuchil (Cutchil)
+010903,0109,Gima
+010904,0109,Guel
+010905,0109,Ludo
+010906,0109,San BartolomÃ©
+010907,0109,San JosÃ© de Raranga
+011001,0110,San Felipe de OÃ±a Cabecera Cantonal
+011002,0110,Susudel
+011101,0111,Chordeleg
+011102,0111,Principal
+011103,0111,La UniÃ³n
+011104,0111,Luis Galarza Orellana (Cab.En Delegsol)
+011105,0111,San MartÃ­n de Puzhio
+011201,0112,El Pan
+011202,0112,Amaluza
+011203,0112,Palmas
+011204,0112,San Vicente
+011301,0113,Sevilla de Oro
+011302,0113,Amaluza
+011303,0113,Palmas
+011401,0114,Guachapala
+011501,0115,Camilo Ponce EnrÃ­quez
+011502,0115,El Carmen de PijilÃ­
+020101,0201,Ãngel Polibio ChÃ¡ves
+020102,0201,Gabriel Ignacio Veintimilla
+020103,0201,Guanujo
+020104,0201,Guaranda
+020105,0201,Facundo Vela
+020106,0201,Guanujo
+020107,0201,Julio E. Moreno (CatanahuÃ¡n Grande)
+020108,0201,Las Naves
+020109,0201,Salinas
+020110,0201,San Lorenzo
+020111,0201,San SimÃ³n (Yacoto)
+020112,0201,Santa FÃ© (Santa FÃ©)
+020113,0201,SimiÃ¡tug
+020114,0201,San Luis de Pambil
+020201,0202,Chillanes
+020202,0202,San JosÃ© del Tambo (Tambopamba)
+020301,0203,San JosÃ© de Chimbo
+020302,0203,AsunciÃ³n (Asancoto)
+020303,0203,Caluma
+020304,0203,Magdalena (Chapacoto)
+020305,0203,San SebastiÃ¡n
+020306,0203,Telimbela
+020401,0204,EcheandÃ­a
+020501,0205,San Miguel
+020502,0205,Balsapamba
+020503,0205,BilovÃ¡n
+020504,0205,RÃ©gulo de Mora
+020505,0205,San Pablo (San Pablo de Atenas)
+020506,0205,Santiago
+020507,0205,San Vicente
+020601,0206,Caluma
+020701,0207,Las Mercedes
+020702,0207,Las Naves
+020703,0207,Las Naves
+030101,0301,Aurelio Bayas MartÃ­nez
+030102,0301,Azogues
+030103,0301,Borrero
+030104,0301,San Francisco
+030105,0301,Azogues
+030106,0301,Cojitambo
+030107,0301,DÃ©leg
+030108,0301,GuapÃ¡n
+030109,0301,Javier Loyola (Chuquipata)
+030110,0301,Luis Cordero
+030111,0301,Pindilig
+030112,0301,Rivera
+030113,0301,San Miguel
+030114,0301,Solano
+030115,0301,Taday
+030201,0302,BibliÃ¡n
+030202,0302,NazÃ³n (Cab. En Pampa de DomÃ­nguez)
+030203,0302,San Francisco de Sageo
+030204,0302,Turupamba
+030205,0302,JerusalÃ©n
+030301,0303,CaÃ±ar
+030302,0303,Chontamarca
+030303,0303,Chorocopte
+030304,0303,General Morales (Socarte)
+030305,0303,Gualleturo
+030306,0303,Honorato VÃ¡squez (Tambo Viejo)
+030307,0303,Ingapirca
+030308,0303,Juncal
+030309,0303,San Antonio
+030310,0303,Suscal
+030311,0303,Tambo
+030312,0303,Zhud
+030313,0303,Ventura
+030314,0303,Ducur
+030401,0304,La Troncal
+030402,0304,Manuel J. Calle
+030403,0304,Pancho Negro
+030501,0305,El Tambo
+030601,0306,DÃ©leg
+030602,0306,Solano
+030701,0307,Suscal
+040101,0401,GonzÃ¡lez SuÃ¡rez
+040102,0401,TulcÃ¡n
+040103,0401,TulcÃ¡n
+040104,0401,El Carmelo (El Pun)
+040105,0401,Huaca
+040106,0401,Julio Andrade (Orejuela)
+040107,0401,Maldonado
+040108,0401,Pioter
+040109,0401,Tobar Donoso (La Bocana de CamumbÃ­)
+040110,0401,TufiÃ±o
+040111,0401,Urbina (Taya)
+040112,0401,El Chical
+040113,0401,Mariscal Sucre
+040114,0401,Santa Martha de Cuba
+040201,0402,BolÃ­var
+040202,0402,GarcÃ­a Moreno
+040203,0402,Los Andes
+040204,0402,Monte Olivo
+040205,0402,San Vicente de Pusir
+040206,0402,San Rafael
+040301,0403,El Ãngel
+040302,0403,27 de Septiembre
+040303,0403,El Angel
+040304,0403,El Goaltal
+040305,0403,La Libertad (Alizo)
+040306,0403,San Isidro
+040401,0404,Mira (Chontahuasi)
+040402,0404,ConcepciÃ³n
+040403,0404,JijÃ³n Y CaamaÃ±o (Cab. En RÃ­o Blanco)
+040404,0404,Juan Montalvo (San Ignacio de Quil)
+040501,0405,GonzÃ¡lez SuÃ¡rez
+040502,0405,San JosÃ©
+040503,0405,San Gabriel
+040504,0405,CristÃ³bal ColÃ³n
+040505,0405,ChitÃ¡n de Navarrete
+040506,0405,FernÃ¡ndez Salvador
+040507,0405,La Paz
+040508,0405,Piartal
+040601,0406,Huaca
+040602,0406,Mariscal Sucre
+050101,0501,Eloy Alfaro (San Felipe)
+050102,0501,Ignacio Flores (Parque Flores)
+050103,0501,Juan Montalvo (San SebastiÃ¡n)
+050104,0501,La Matriz
+050105,0501,San Buenaventura
+050106,0501,Latacunga
+050107,0501,Alaques (AlÃ¡quez)
+050108,0501,Belisario Quevedo (GuanailÃ­n)
+050109,0501,Guaitacama (Guaytacama)
+050110,0501,Joseguango Bajo
+050111,0501,Las Pampas
+050112,0501,MulalÃ³
+050113,0501,11 de Noviembre (Ilinchisi)
+050114,0501,PoalÃ³
+050115,0501,San Juan de Pastocalle
+050116,0501,Sigchos
+050117,0501,TanicuchÃ­
+050118,0501,Toacaso
+050119,0501,Palo Quemado
+050201,0502,El Carmen
+050202,0502,La ManÃ¡
+050203,0502,El Triunfo
+050204,0502,La ManÃ¡
+050205,0502,Guasaganda (Cab.En Guasaganda
+050206,0502,Pucayacu
+050301,0503,El CorazÃ³n
+050302,0503,Moraspungo
+050303,0503,Pinllopata
+050304,0503,RamÃ³n CampaÃ±a
+050401,0504,PujilÃ­
+050402,0504,Angamarca
+050403,0504,ChucchilÃ¡n (ChugchilÃ¡n)
+050404,0504,Guangaje
+050405,0504,IsinlibÃ­ (IsinlivÃ­)
+050406,0504,La Victoria
+050407,0504,PilalÃ³
+050408,0504,Tingo
+050409,0504,Zumbahua
+050501,0505,San Miguel
+050502,0505,Antonio JosÃ© HolguÃ­n (Santa LucÃ­a)
+050503,0505,Cusubamba
+050504,0505,Mulalillo
+050505,0505,Mulliquindil (Santa Ana)
+050506,0505,Pansaleo
+050601,0506,SaquisilÃ­
+050602,0506,Canchagua
+050603,0506,ChantilÃ­n
+050604,0506,Cochapamba
+050701,0507,Sigchos
+050702,0507,ChugchillÃ¡n
+050703,0507,IsinlivÃ­
+050704,0507,Las Pampas
+050705,0507,Palo Quemado
+060101,0601,Lizarzaburu
+060102,0601,Maldonado
+060103,0601,Velasco
+060104,0601,Veloz
+060105,0601,YaruquÃ­es
+060106,0601,Riobamba
+060107,0601,Cacha (Cab. En MachÃ¡ngara)
+060108,0601,Calpi
+060109,0601,CubijÃ­es
+060110,0601,Flores
+060111,0601,LicÃ¡n
+060112,0601,Licto
+060113,0601,PungalÃ¡
+060114,0601,PunÃ­n
+060115,0601,Quimiag
+060116,0601,San Juan
+060117,0601,San Luis
+060201,0602,AlausÃ­
+060202,0602,Achupallas
+060203,0602,CumandÃ¡
+060204,0602,Guasuntos
+060205,0602,Huigra
+060206,0602,Multitud
+060207,0602,PistishÃ­ (Nariz del Diablo)
+060208,0602,Pumallacta
+060209,0602,Sevilla
+060210,0602,Sibambe
+060211,0602,TixÃ¡n
+060301,0603,Cajabamba
+060302,0603,Sicalpa
+060303,0603,Villa La UniÃ³n (Cajabamba)
+060304,0603,CaÃ±i
+060305,0603,Columbe
+060306,0603,Juan de Velasco (Pangor)
+060307,0603,Santiago de Quito (Cab. En San Antonio de Quito)
+060401,0604,Chambo
+060501,0605,Chunchi
+060502,0605,Capzol
+060503,0605,Compud
+060504,0605,Gonzol
+060505,0605,Llagos
+060601,0606,Guamote
+060602,0606,Cebadas
+060603,0606,Palmira
+060701,0607,El Rosario
+060702,0607,La Matriz
+060703,0607,Guano
+060704,0607,Guanando
+060705,0607,Ilapo
+060706,0607,La Providencia
+060707,0607,San AndrÃ©s
+060708,0607,San Gerardo de PacaicaguÃ¡n
+060709,0607,San Isidro de PatulÃº
+060710,0607,San JosÃ© del Chazo
+060711,0607,Santa FÃ© de GalÃ¡n
+060712,0607,ValparaÃ­so
+060801,0608,Pallatanga
+060901,0609,Penipe
+060902,0609,El Altar
+060903,0609,Matus
+060904,0609,Puela
+060905,0609,San Antonio de Bayushig
+060906,0609,La Candelaria
+060907,0609,Bilbao (Cab.En Quilluyacu)
+061001,0610,CumandÃ¡
+070101,0701,La Providencia
+070102,0701,Machala
+070103,0701,Puerto BolÃ­var
+070104,0701,Nueve de Mayo
+070105,0701,El Cambio
+070106,0701,Machala
+070107,0701,El Cambio
+070108,0701,El Retiro
+070201,0702,Arenillas
+070202,0702,Chacras
+070203,0702,La Libertad
+070204,0702,Las Lajas (Cab. En La Victoria)
+070205,0702,Palmales
+070206,0702,CarcabÃ³n
+070301,0703,Paccha
+070302,0703,Ayapamba
+070303,0703,Cordoncillo
+070304,0703,Milagro
+070305,0703,San JosÃ©
+070306,0703,San Juan de Cerro Azul
+070401,0704,Balsas
+070402,0704,BellamarÃ­a
+070501,0705,Chilla
+070601,0706,El Guabo
+070602,0706,Barbones (Sucre)
+070603,0706,La Iberia
+070604,0706,Tendales (Cab.En Puerto Tendales)
+070605,0706,RÃ­o Bonito
+070701,0707,Ecuador
+070702,0707,El ParaÃ­so
+070703,0707,Hualtaco
+070704,0707,Milton Reyes
+070705,0707,UniÃ³n Lojana
+070706,0707,Huaquillas
+070801,0708,MarcabelÃ­
+070802,0708,El Ingenio
+070901,0709,BolÃ­var
+070902,0709,Loma de Franco
+070903,0709,Ochoa LeÃ³n (Matriz)
+070904,0709,Tres Cerritos
+070905,0709,Pasaje
+070906,0709,Buenavista
+070907,0709,Casacay
+070908,0709,La PeaÃ±a
+070909,0709,Progreso
+070910,0709,Uzhcurrumi
+070911,0709,CaÃ±aquemada
+071001,0710,La Matriz
+071002,0710,La Susaya
+071003,0710,PiÃ±as Grande
+071004,0710,PiÃ±as
+071005,0710,Capiro (Cab. En La Capilla de Capiro)
+071006,0710,La Bocana
+071007,0710,Moromoro (Cab. En El Vado)
+071008,0710,Piedras
+071009,0710,San Roque (Ambrosio Maldonado)
+071010,0710,Saracay
+071101,0711,Portovelo
+071102,0711,Curtincapa
+071103,0711,Morales
+071104,0711,SalatÃ­
+071201,0712,Santa Rosa
+071202,0712,Puerto JelÃ­
+071203,0712,Balneario JambelÃ­ (SatÃ©lite)
+071204,0712,JumÃ³n (SatÃ©lite)
+071205,0712,Nuevo Santa Rosa
+071206,0712,Santa Rosa
+071207,0712,Bellavista
+071208,0712,JambelÃ­
+071209,0712,La Avanzada
+071210,0712,San Antonio
+071211,0712,Torata
+071212,0712,Victoria
+071213,0712,BellamarÃ­a
+071301,0713,Zaruma
+071302,0713,AbaÃ±Ã­n
+071303,0713,Arcapamba
+071304,0713,GuanazÃ¡n
+071305,0713,GuizhaguiÃ±a
+071306,0713,Huertas
+071307,0713,Malvas
+071308,0713,Muluncay Grande
+071309,0713,Sinsao
+071310,0713,Salvias
+071401,0714,La Victoria
+071402,0714,Platanillos
+071403,0714,Valle Hermoso
+071404,0714,La Victoria
+071405,0714,La Libertad
+071406,0714,El ParaÃ­so
+071407,0714,San Isidro
+080101,0801,BartolomÃ© Ruiz (CÃ©sar Franco CarriÃ³n)
+080102,0801,5 de Agosto
+080103,0801,Esmeraldas
+080104,0801,Luis Tello (Las Palmas)
+080105,0801,SimÃ³n Plata Torres
+080106,0801,Esmeraldas
+080107,0801,Atacames
+080108,0801,Camarones (Cab. En San Vicente)
+080109,0801,Crnel. Carlos Concha Torres (Cab.En Huele)
+080110,0801,Chinca
+080111,0801,Chontaduro
+080112,0801,ChumundÃ©
+080113,0801,Lagarto
+080114,0801,La UniÃ³n
+080115,0801,Majua
+080116,0801,Montalvo (Cab. En Horqueta)
+080117,0801,RÃ­o Verde
+080118,0801,Rocafuerte
+080119,0801,San Mateo
+080120,0801,SÃºa (Cab. En La Bocana)
+080121,0801,Tabiazo
+080122,0801,Tachina
+080123,0801,TonchigÃ¼e
+080124,0801,Vuelta Larga
+080201,0802,Valdez (Limones)
+080202,0802,Anchayacu
+080203,0802,Atahualpa (Cab. En Camarones)
+080204,0802,BorbÃ³n
+080205,0802,La Tola
+080206,0802,Luis Vargas Torres (Cab. En Playa de Oro)
+080207,0802,Maldonado
+080208,0802,Pampanal de BolÃ­var
+080209,0802,San Francisco de Onzole
+080210,0802,Santo Domingo de Onzole
+080211,0802,Selva Alegre
+080212,0802,TelembÃ­
+080213,0802,ColÃ³n Eloy del MarÃ­a
+080214,0802,San JosÃ© de Cayapas
+080215,0802,TimbirÃ©
+080301,0803,Muisne
+080302,0803,BolÃ­var
+080303,0803,Daule
+080304,0803,Galera
+080305,0803,Quingue (Olmedo Perdomo Franco)
+080306,0803,Salima
+080307,0803,San Francisco
+080308,0803,San Gregorio
+080309,0803,San JosÃ© de Chamanga (Cab.En Chamanga)
+080401,0804,Rosa ZÃ¡rate (QuinindÃ©)
+080402,0804,Cube
+080403,0804,Chura (Chancama) (Cab. En El Yerbero)
+080404,0804,Malimpia
+080405,0804,Viche
+080406,0804,La UniÃ³n
+080501,0805,San Lorenzo
+080502,0805,Alto Tambo (Cab. En Guadual)
+080503,0805,AncÃ³n (Pichangal) (Cab. En Palma Real)
+080504,0805,CalderÃ³n
+080505,0805,Carondelet
+080506,0805,5 de Junio (Cab. En Uimbi)
+080507,0805,ConcepciÃ³n
+080508,0805,Mataje (Cab. En Santander)
+080509,0805,San Javier de CachavÃ­ (Cab. En San Javier)
+080510,0805,Santa Rita
+080511,0805,Tambillo
+080512,0805,TululbÃ­ (Cab. En Ricaurte)
+080513,0805,Urbina
+080601,0806,Atacames
+080602,0806,La UniÃ³n
+080603,0806,SÃºa (Cab. En La Bocana)
+080604,0806,TonchigÃ¼e
+080605,0806,Tonsupa
+080701,0807,Rioverde
+080702,0807,Chontaduro
+080703,0807,ChumundÃ©
+080704,0807,Lagarto
+080705,0807,Montalvo (Cab. En Horqueta)
+080706,0807,Rocafuerte
+080801,0808,La Concordia
+080802,0808,Monterrey
+080803,0808,La Villegas
+080804,0808,Plan Piloto
+090101,0901,Ayacucho
+090102,0901,BolÃ­var (Sagrario)
+090103,0901,Carbo (ConcepciÃ³n)
+090104,0901,Febres Cordero
+090105,0901,GarcÃ­a Moreno
+090106,0901,Letamendi
+090107,0901,Nueve de Octubre
+090108,0901,Olmedo (San Alejo)
+090109,0901,Roca
+090110,0901,Rocafuerte
+090111,0901,Sucre
+090112,0901,Tarqui
+090113,0901,Urdaneta
+090114,0901,Ximena
+090115,0901,Pascuales
+090116,0901,Guayaquil
+090117,0901,ChongÃ³n
+090118,0901,Juan GÃ³mez RendÃ³n (Progreso)
+090119,0901,Morro
+090120,0901,Pascuales
+090121,0901,Playas (Gral. Villamil)
+090122,0901,Posorja
+090123,0901,PunÃ¡
+090124,0901,Tenguel
+090201,0902,Alfredo Baquerizo Moreno (JujÃ¡n)
+090301,0903,Balao
+090401,0904,Balzar
+090501,0905,Colimes
+090502,0905,San Jacinto
+090601,0906,Daule
+090602,0906,La Aurora (SatÃ©lite)
+090603,0906,Banife
+090604,0906,Emiliano Caicedo Marcos
+090605,0906,Magro
+090606,0906,Padre Juan Bautista Aguirre
+090607,0906,Santa Clara
+090608,0906,Vicente Piedrahita
+090609,0906,Daule
+090610,0906,Isidro Ayora (Soledad)
+090611,0906,Juan Bautista Aguirre (Los Tintos)
+090612,0906,Laurel
+090613,0906,Limonal
+090614,0906,Lomas de Sargentillo
+090615,0906,Los Lojas (Enrique Baquerizo Moreno)
+090616,0906,Piedrahita (Nobol)
+090701,0907,Eloy Alfaro (DurÃ¡n)
+090702,0907,El Recreo
+090703,0907,Eloy Alfaro (DurÃ¡n)
+090801,0908,Velasco Ibarra (El Empalme)
+090802,0908,Guayas (Pueblo Nuevo)
+090803,0908,El Rosario
+090901,0909,El Triunfo
+091001,0910,Milagro
+091002,0910,Chobo
+091003,0910,General Elizalde (Bucay)
+091004,0910,Mariscal Sucre (Huaques)
+091005,0910,Roberto Astudillo (Cab. En Cruce de Venecia)
+091101,0911,Naranjal
+091102,0911,JesÃºs MarÃ­a
+091103,0911,San Carlos
+091104,0911,Santa Rosa de Flandes
+091105,0911,Taura
+091201,0912,Naranjito
+091301,0913,Palestina
+091401,0914,Pedro Carbo
+091402,0914,Valle de La Virgen
+091403,0914,Sabanilla
+091501,0915,SamborondÃ³n
+091502,0915,La Puntilla (SatÃ©lite)
+091503,0915,SamborondÃ³n
+091504,0915,Tarifa
+091601,0916,Santa LucÃ­a
+091701,0917,Bocana
+091702,0917,Candilejos
+091703,0917,Central
+091704,0917,ParaÃ­so
+091705,0917,San Mateo
+091706,0917,El Salitre (Las Ramas)
+091707,0917,Gral. Vernaza (Dos Esteros)
+091708,0917,La Victoria (Ãauza)
+091709,0917,Junquillal
+091801,0918,San Jacinto de Yaguachi
+091802,0918,Crnel. Lorenzo de Garaicoa (Pedregal)
+091803,0918,Crnel. Marcelino MaridueÃ±a (San Carlos)
+091804,0918,Gral. Pedro J. Montero (Boliche)
+091805,0918,SimÃ³n BolÃ­var
+091806,0918,Yaguachi Viejo (Cone)
+091807,0918,Virgen de FÃ¡tima
+091901,0919,General Villamil (Playas)
+092001,0920,SimÃ³n BolÃ­var
+092002,0920,Crnel.Lorenzo de Garaicoa (Pedregal)
+092101,0921,Coronel Marcelino MaridueÃ±a (San Carlos)
+092201,0922,Lomas de Sargentillo
+092202,0922,Isidro Ayora (Soledad)
+092301,0923,Narcisa de JesÃºs
+092401,0924,General Antonio Elizalde (Bucay)
+092501,0925,Isidro Ayora
+100101,1001,Caranqui
+100102,1001,Guayaquil de Alpachaca
+100103,1001,Sagrario
+100104,1001,San Francisco
+100105,1001,La Dolorosa del Priorato
+100106,1001,San Miguel de Ibarra
+100107,1001,AmbuquÃ­
+100108,1001,Angochagua
+100109,1001,Carolina
+100110,1001,La Esperanza
+100111,1001,Lita
+100112,1001,Salinas
+100113,1001,San Antonio
+100201,1002,Andrade MarÃ­n (Lourdes)
+100202,1002,Atuntaqui
+100203,1002,Atuntaqui
+100204,1002,Imbaya (San Luis de Cobuendo)
+100205,1002,San Francisco de Natabuela
+100206,1002,San JosÃ© de Chaltura
+100207,1002,San Roque
+100301,1003,Sagrario
+100302,1003,San Francisco
+100303,1003,Cotacachi
+100304,1003,Apuela
+100305,1003,GarcÃ­a Moreno (Llurimagua)
+100306,1003,Imantag
+100307,1003,PeÃ±aherrera
+100308,1003,Plaza GutiÃ©rrez (Calvario)
+100309,1003,Quiroga
+100310,1003,6 de Julio de Cuellaje (Cab. En Cuellaje)
+100311,1003,Vacas Galindo (El Churo) (Cab.En San Miguel Alto
+100401,1004,JordÃ¡n
+100402,1004,San Luis
+100403,1004,Otavalo
+100404,1004,Dr. Miguel Egas Cabezas (Peguche)
+100405,1004,Eugenio Espejo (CalpaquÃ­)
+100406,1004,GonzÃ¡lez SuÃ¡rez
+100407,1004,PataquÃ­
+100408,1004,San JosÃ© de Quichinche
+100409,1004,San Juan de IlumÃ¡n
+100410,1004,San Pablo
+100411,1004,San Rafael
+100412,1004,Selva Alegre (Cab.En San Miguel de Pamplona)
+100501,1005,Pimampiro
+100502,1005,ChugÃ¡
+100503,1005,Mariano Acosta
+100504,1005,San Francisco de Sigsipamba
+100601,1006,UrcuquÃ­ Cabecera Cantonal
+100602,1006,CahuasquÃ­
+100603,1006,La Merced de Buenos Aires
+100604,1006,Pablo Arenas
+100605,1006,San Blas
+100606,1006,Tumbabiro
+110101,1101,El Sagrario
+110102,1101,San SebastiÃ¡n
+110103,1101,Sucre
+110104,1101,Valle
+110105,1101,Loja
+110106,1101,Chantaco
+110107,1101,Chuquiribamba
+110108,1101,El Cisne
+110109,1101,Gualel
+110110,1101,Jimbilla
+110111,1101,Malacatos (Valladolid)
+110112,1101,San Lucas
+110113,1101,San Pedro de Vilcabamba
+110114,1101,Santiago
+110115,1101,Taquil (Miguel RiofrÃ­o)
+110116,1101,Vilcabamba (Victoria)
+110117,1101,Yangana (Arsenio Castillo)
+110118,1101,Quinara
+110201,1102,Cariamanga
+110202,1102,Chile
+110203,1102,San Vicente
+110204,1102,Cariamanga
+110205,1102,Colaisaca
+110206,1102,El Lucero
+110207,1102,Utuana
+110208,1102,SanguillÃ­n
+110301,1103,Catamayo
+110302,1103,San JosÃ©
+110303,1103,Catamayo (La Toma)
+110304,1103,El Tambo
+110305,1103,Guayquichuma
+110306,1103,San Pedro de La Bendita
+110307,1103,Zambi
+110401,1104,Celica
+110402,1104,Cruzpamba (Cab. En Carlos Bustamante)
+110403,1104,Chaquinal
+110404,1104,12 de Diciembre (Cab. En Achiotes)
+110405,1104,Pindal (Federico PÃ¡ez)
+110406,1104,Pozul (San Juan de Pozul)
+110407,1104,Sabanilla
+110408,1104,Tnte. Maximiliano RodrÃ­guez Loaiza
+110501,1105,Chaguarpamba
+110502,1105,Buenavista
+110503,1105,El Rosario
+110504,1105,Santa Rufina
+110505,1105,Amarillos
+110601,1106,Amaluza
+110602,1106,Bellavista
+110603,1106,Jimbura
+110604,1106,Santa Teresita
+110605,1106,27 de Abril (Cab. En La Naranja)
+110606,1106,El Ingenio
+110607,1106,El Airo
+110701,1107,GonzanamÃ¡
+110702,1107,Changaimina (La Libertad)
+110703,1107,Fundochamba
+110704,1107,Nambacola
+110705,1107,Purunuma (Eguiguren)
+110706,1107,Quilanga (La Paz)
+110707,1107,Sacapalca
+110708,1107,San Antonio de Las Aradas (Cab. En Las Aradas)
+110801,1108,General Eloy Alfaro (San SebastiÃ¡n)
+110802,1108,MacarÃ¡ (Manuel Enrique Rengel Suquilanda)
+110803,1108,MacarÃ¡
+110804,1108,Larama
+110805,1108,La Victoria
+110806,1108,Sabiango (La Capilla)
+110901,1109,Catacocha
+110902,1109,Lourdes
+110903,1109,Catacocha
+110904,1109,CangonamÃ¡
+110905,1109,GuachanamÃ¡
+110906,1109,La Tingue
+110907,1109,Lauro Guerrero
+110908,1109,Olmedo (Santa BÃ¡rbara)
+110909,1109,Orianga
+110910,1109,San Antonio
+110911,1109,Casanga
+110912,1109,Yamana
+111001,1110,Alamor
+111002,1110,Ciano
+111003,1110,El Arenal
+111004,1110,El Limo (Mariana de JesÃºs)
+111005,1110,Mercadillo
+111006,1110,Vicentino
+111101,1111,Saraguro
+111102,1111,El ParaÃ­so de CelÃ©n
+111103,1111,El TablÃ³n
+111104,1111,Lluzhapa
+111105,1111,ManÃº
+111106,1111,San Antonio de Qumbe (Cumbe)
+111107,1111,San Pablo de Tenta
+111108,1111,San SebastiÃ¡n de YÃºluc
+111109,1111,Selva Alegre
+111110,1111,Urdaneta (Paquishapa)
+111111,1111,Sumaypamba
+111201,1112,Sozoranga
+111202,1112,Nueva FÃ¡tima
+111203,1112,Tacamoros
+111301,1113,Zapotillo
+111302,1113,Mangahurco (Cazaderos)
+111303,1113,Garzareal
+111304,1113,Limones
+111305,1113,Paletillas
+111306,1113,Bolaspamba
+111401,1114,Pindal
+111402,1114,Chaquinal
+111403,1114,12 de Diciembre (Cab.En Achiotes)
+111404,1114,Milagros
+111501,1115,Quilanga
+111502,1115,Fundochamba
+111503,1115,San Antonio de Las Aradas (Cab. En Las Aradas)
+111601,1116,Olmedo
+111602,1116,La Tingue
+120101,1201,Clemente Baquerizo
+120102,1201,Dr. Camilo Ponce
+120103,1201,Barreiro
+120104,1201,El Salto
+120105,1201,Babahoyo
+120106,1201,Barreiro (Santa Rita)
+120107,1201,Caracol
+120108,1201,Febres Cordero (Las Juntas)
+120109,1201,Pimocha
+120110,1201,La UniÃ³n
+120201,1202,Baba
+120202,1202,Guare
+120203,1202,Isla de Bejucal
+120301,1203,Montalvo
+120401,1204,Puebloviejo
+120402,1204,Puerto Pechiche
+120403,1204,San Juan
+120501,1205,Quevedo
+120502,1205,San Camilo
+120503,1205,San JosÃ©
+120504,1205,GuayacÃ¡n
+120505,1205,NicolÃ¡s Infante DÃ­az
+120506,1205,San CristÃ³bal
+120507,1205,Siete de Octubre
+120508,1205,24 de Mayo
+120509,1205,Venus del RÃ­o Quevedo
+120510,1205,Viva Alfaro
+120511,1205,Quevedo
+120512,1205,Buena FÃ©
+120513,1205,Mocache
+120514,1205,San Carlos
+120515,1205,Valencia
+120516,1205,La Esperanza
+120601,1206,Catarama
+120602,1206,Ricaurte
+120701,1207,10 de Noviembre
+120702,1207,Ventanas
+120703,1207,Quinsaloma
+120704,1207,Zapotal
+120705,1207,Chacarita
+120706,1207,Los Ãngeles
+120801,1208,Vinces
+120802,1208,Antonio Sotomayor (Cab. En Playas de Vinces)
+120803,1208,Palenque
+120901,1209,Palenque
+121001,1210,San Jacinto de Buena FÃ©
+121002,1210,7 de Agosto
+121003,1210,11 de Octubre
+121004,1210,San Jacinto de Buena FÃ©
+121005,1210,Patricia Pilar
+121101,1211,Valencia
+121201,1212,Mocache
+121301,1213,Quinsaloma
+130101,1301,Portoviejo
+130102,1301,12 de Marzo
+130103,1301,ColÃ³n
+130104,1301,PicoazÃ¡
+130105,1301,San Pablo
+130106,1301,AndrÃ©s de Vera
+130107,1301,Francisco Pacheco
+130108,1301,18 de Octubre
+130109,1301,SimÃ³n BolÃ­var
+130110,1301,Portoviejo
+130111,1301,AbdÃ³n CalderÃ³n (San Francisco)
+130112,1301,Alhajuela (Bajo Grande)
+130113,1301,Crucita
+130114,1301,Pueblo Nuevo
+130115,1301,Riochico (RÃ­o Chico)
+130116,1301,San PlÃ¡cido
+130117,1301,Chirijos
+130201,1302,Calceta
+130202,1302,Membrillo
+130203,1302,Quiroga
+130301,1303,Chone
+130302,1303,Santa Rita
+130303,1303,Chone
+130304,1303,BoyacÃ¡
+130305,1303,Canuto
+130306,1303,Convento
+130307,1303,Chibunga
+130308,1303,Eloy Alfaro
+130309,1303,Ricaurte
+130310,1303,San Antonio
+130401,1304,El Carmen
+130402,1304,4 de Diciembre
+130403,1304,El Carmen
+130404,1304,Wilfrido Loor Moreira (Maicito)
+130405,1304,San Pedro de Suma
+130501,1305,Flavio Alfaro
+130502,1305,San Francisco de Novillo (Cab. En
+130503,1305,Zapallo
+130601,1306,Dr. Miguel MorÃ¡n Lucio
+130602,1306,Manuel Inocencio Parrales Y Guale
+130603,1306,San Lorenzo de Jipijapa
+130604,1306,Jipijapa
+130605,1306,AmÃ©rica
+130606,1306,El Anegado (Cab. En Eloy Alfaro)
+130607,1306,Julcuy
+130608,1306,La UniÃ³n
+130609,1306,Machalilla
+130610,1306,Membrillal
+130611,1306,Pedro Pablo GÃ³mez
+130612,1306,Puerto de Cayo
+130613,1306,Puerto LÃ³pez
+130701,1307,JunÃ­n
+130801,1308,Los Esteros
+130802,1308,Manta
+130803,1308,San Mateo
+130804,1308,Tarqui
+130805,1308,Eloy Alfaro
+130806,1308,Manta
+130807,1308,San Lorenzo
+130808,1308,Santa Marianita (Boca de Pacoche)
+130901,1309,Anibal San AndrÃ©s
+130902,1309,Montecristi
+130903,1309,El Colorado
+130904,1309,General Eloy Alfaro
+130905,1309,Leonidas ProaÃ±o
+130906,1309,Montecristi
+130907,1309,JaramijÃ³
+130908,1309,La Pila
+131001,1310,PajÃ¡n
+131002,1310,Campozano (La Palma de PajÃ¡n)
+131003,1310,Cascol
+131004,1310,Guale
+131005,1310,Lascano
+131101,1311,Pichincha
+131102,1311,Barraganete
+131103,1311,San SebastiÃ¡n
+131201,1312,Rocafuerte
+131301,1313,Santa Ana
+131302,1313,Lodana
+131303,1313,Santa Ana de Vuelta Larga
+131304,1313,Ayacucho
+131305,1313,Honorato VÃ¡squez (Cab. En VÃ¡squez)
+131306,1313,La UniÃ³n
+131307,1313,Olmedo
+131308,1313,San Pablo (Cab. En Pueblo Nuevo)
+131401,1314,BahÃ­a de CarÃ¡quez
+131402,1314,Leonidas Plaza GutiÃ©rrez
+131403,1314,BahÃ­a de CarÃ¡quez
+131404,1314,Canoa
+131405,1314,CojimÃ­es
+131406,1314,CharapotÃ³
+131407,1314,10 de Agosto
+131408,1314,Jama
+131409,1314,Pedernales
+131410,1314,San Isidro
+131411,1314,San Vicente
+131501,1315,Tosagua
+131502,1315,Bachillero
+131503,1315,Angel Pedro Giler (La Estancilla)
+131601,1316,Sucre
+131602,1316,Bellavista
+131603,1316,Noboa
+131604,1316,Arq. Sixto DurÃ¡n BallÃ©n
+131701,1317,Pedernales
+131702,1317,CojimÃ­es
+131703,1317,10 de Agosto
+131704,1317,Atahualpa
+131801,1318,Olmedo
+131901,1319,Puerto LÃ³pez
+131902,1319,Machalilla
+131903,1319,Salango
+132001,1320,Jama
+132101,1321,JaramijÃ³
+132201,1322,San Vicente
+132202,1322,Canoa
+140101,1401,Macas
+140102,1401,Alshi (Cab. En 9 de Octubre)
+140103,1401,Chiguaza
+140104,1401,General ProaÃ±o
+140105,1401,Huasaga (Cab.En Wampuik)
+140106,1401,Macuma
+140107,1401,San Isidro
+140108,1401,Sevilla Don Bosco
+140109,1401,SinaÃ­
+140110,1401,Taisha
+140111,1401,ZuÃ±a (ZÃºÃ±ac)
+140112,1401,Tuutinentza
+140113,1401,Cuchaentza
+140114,1401,San JosÃ© de Morona
+140115,1401,RÃ­o Blanco
+140201,1402,Gualaquiza
+140202,1402,Mercedes Molina
+140203,1402,Gualaquiza
+140204,1402,Amazonas (Rosario de Cuyes)
+140205,1402,Bermejos
+140206,1402,Bomboiza
+140207,1402,ChigÃ¼inda
+140208,1402,El Rosario
+140209,1402,Nueva Tarqui
+140210,1402,San Miguel de Cuyes
+140211,1402,El Ideal
+140301,1403,General Leonidas Plaza GutiÃ©rrez (LimÃ³n)
+140302,1403,Indanza
+140303,1403,Pan de AzÃºcar
+140304,1403,San Antonio (Cab. En San Antonio Centro
+140305,1403,San Carlos de LimÃ³n (San Carlos del
+140306,1403,San Juan Bosco
+140307,1403,San Miguel de Conchay
+140308,1403,Santa Susana de Chiviaza (Cab. En Chiviaza)
+140309,1403,Yunganza (Cab. En El Rosario)
+140401,1404,Palora (Metzera)
+140402,1404,Arapicos
+140403,1404,CumandÃ¡ (Cab. En Colonia AgrÃ­cola Sevilla del Oro)
+140404,1404,Huamboya
+140405,1404,Sangay (Cab. En Nayamanaca)
+140501,1405,Santiago de MÃ©ndez
+140502,1405,Copal
+140503,1405,Chupianza
+140504,1405,Patuca
+140505,1405,San Luis de El Acho (Cab. En El Acho)
+140506,1405,Santiago
+140507,1405,Tayuza
+140508,1405,San Francisco de Chinimbimi
+140601,1406,SucÃºa
+140602,1406,AsunciÃ³n
+140603,1406,Huambi
+140604,1406,LogroÃ±o
+140605,1406,Yaupi
+140606,1406,Santa Marianita de JesÃºs
+140701,1407,Huamboya
+140702,1407,Chiguaza
+140703,1407,Pablo Sexto
+140801,1408,San Juan Bosco
+140802,1408,Pan de AzÃºcar
+140803,1408,San Carlos de LimÃ³n
+140804,1408,San Jacinto de Wakambeis
+140805,1408,Santiago de Pananza
+140901,1409,Taisha
+140902,1409,Huasaga (Cab. En Wampuik)
+140903,1409,Macuma
+140904,1409,Tuutinentza
+140905,1409,Pumpuentsa
+141001,1410,LogroÃ±o
+141002,1410,Yaupi
+141003,1410,Shimpis
+141101,1411,Pablo Sexto
+141201,1412,Santiago
+141202,1412,San JosÃ© de Morona
+150101,1501,Tena
+150102,1501,Ahuano
+150103,1501,Carlos Julio Arosemena Tola (Zatza-Yacu)
+150104,1501,Chontapunta
+150105,1501,Pano
+150106,1501,Puerto Misahualli
+150107,1501,Puerto Napo
+150108,1501,TÃ¡lag
+150109,1501,San Juan de Muyuna
+150201,1502,Archidona
+150202,1502,Avila
+150203,1502,Cotundo
+150204,1502,Loreto
+150205,1502,San Pablo de Ushpayacu
+150206,1502,Puerto Murialdo
+150301,1503,El Chaco
+150302,1503,Gonzalo DÃ­az de Pineda (El BombÃ³n)
+150303,1503,Linares
+150304,1503,Oyacachi
+150305,1503,Santa Rosa
+150306,1503,Sardinas
+150401,1504,Baeza
+150402,1504,Cosanga
+150403,1504,Cuyuja
+150404,1504,Papallacta
+150405,1504,San Francisco de Borja (Virgilio DÃ¡vila)
+150406,1504,San JosÃ© del Payamino
+150407,1504,Sumaco
+150501,1505,Carlos Julio Arosemena Tola
+160101,1601,Puyo
+160102,1601,Arajuno
+160103,1601,Canelos
+160104,1601,Curaray
+160105,1601,Diez de Agosto
+160106,1601,FÃ¡tima
+160107,1601,Montalvo (Andoas)
+160108,1601,Pomona
+160109,1601,RÃ­o Corrientes
+160110,1601,RÃ­o Tigre
+160111,1601,Santa Clara
+160112,1601,Sarayacu
+160113,1601,SimÃ³n BolÃ­var (Cab. En Mushullacta)
+160114,1601,Tarqui
+160115,1601,Teniente Hugo Ortiz
+160116,1601,Veracruz (Indillama) (Cab. En Indillama)
+160117,1601,El Triunfo
+160201,1602,Mera
+160202,1602,Madre Tierra
+160203,1602,Shell
+160301,1603,Santa Clara
+160302,1603,San JosÃ©
+160401,1604,Arajuno
+160402,1604,Curaray
+170101,1701,Belisario Quevedo
+170102,1701,CarcelÃ©n
+170103,1701,Centro HistÃ³rico
+170104,1701,Cochapamba
+170105,1701,ComitÃ© del Pueblo
+170106,1701,Cotocollao
+170107,1701,Chilibulo
+170108,1701,Chillogallo
+170109,1701,Chimbacalle
+170110,1701,El Condado
+170111,1701,GuamanÃ­
+170112,1701,IÃ±aquito
+170113,1701,ItchimbÃ­a
+170114,1701,Jipijapa
+170115,1701,Kennedy
+170116,1701,La Argelia
+170117,1701,La ConcepciÃ³n
+170118,1701,La Ecuatoriana
+170119,1701,La Ferroviaria
+170120,1701,La Libertad
+170121,1701,La Magdalena
+170122,1701,La Mena
+170123,1701,Mariscal Sucre
+170124,1701,Ponceano
+170125,1701,PuengasÃ­
+170126,1701,Quitumbe
+170127,1701,Rumipamba
+170128,1701,San Bartolo
+170129,1701,San Isidro del Inca
+170130,1701,San Juan
+170131,1701,Solanda
+170132,1701,Turubamba
+170133,1701,Quito Distrito Metropolitano
+170134,1701,AlangasÃ­
+170135,1701,AmaguaÃ±a
+170136,1701,Atahualpa
+170137,1701,CalacalÃ­
+170138,1701,CalderÃ³n
+170139,1701,Conocoto
+170140,1701,CumbayÃ¡
+170141,1701,Chavezpamba
+170142,1701,Checa
+170143,1701,El Quinche
+170144,1701,Gualea
+170145,1701,Guangopolo
+170146,1701,Guayllabamba
+170147,1701,La Merced
+170148,1701,Llano Chico
+170149,1701,Lloa
+170150,1701,Mindo
+170151,1701,Nanegal
+170152,1701,Nanegalito
+170153,1701,NayÃ³n
+170154,1701,Nono
+170155,1701,Pacto
+170156,1701,Pedro Vicente Maldonado
+170157,1701,Perucho
+170158,1701,Pifo
+170159,1701,PÃ­ntag
+170160,1701,Pomasqui
+170161,1701,PuÃ©llaro
+170162,1701,Puembo
+170163,1701,San Antonio
+170164,1701,San JosÃ© de Minas
+170165,1701,San Miguel de Los Bancos
+170166,1701,Tababela
+170167,1701,Tumbaco
+170168,1701,YaruquÃ­
+170169,1701,Zambiza
+170170,1701,Puerto Quito
+170201,1702,Ayora
+170202,1702,Cayambe
+170203,1702,Juan Montalvo
+170204,1702,Cayambe
+170205,1702,AscÃ¡zubi
+170206,1702,Cangahua
+170207,1702,Olmedo (Pesillo)
+170208,1702,OtÃ³n
+170209,1702,Santa Rosa de Cuzubamba
+170301,1703,Machachi
+170302,1703,AlÃ³ag
+170303,1703,AloasÃ­
+170304,1703,Cutuglahua
+170305,1703,El Chaupi
+170306,1703,Manuel Cornejo Astorga (Tandapi)
+170307,1703,Tambillo
+170308,1703,Uyumbicho
+170401,1704,Tabacundo
+170402,1704,La Esperanza
+170403,1704,MalchinguÃ­
+170404,1704,Tocachi
+170405,1704,Tupigachi
+170501,1705,SangolquÃ­
+170502,1705,San Pedro de Taboada
+170503,1705,San Rafael
+170504,1705,Sangolqui
+170505,1705,Cotogchoa
+170506,1705,Rumipamba
+170601,1706,San Miguel de Los Bancos
+170602,1706,Mindo
+170603,1706,Pedro Vicente Maldonado
+170604,1706,Puerto Quito
+170701,1707,Pedro Vicente Maldonado
+170801,1708,Puerto Quito
+180101,1801,Atocha â Ficoa
+180102,1801,Celiano Monge
+180103,1801,Huachi Chico
+180104,1801,Huachi Loreto
+180105,1801,La Merced
+180106,1801,La PenÃ­nsula
+180107,1801,Matriz
+180108,1801,Pishilata
+180109,1801,San Francisco
+180110,1801,Ambato
+180111,1801,Ambatillo
+180112,1801,Atahualpa (Chisalata)
+180113,1801,Augusto N. MartÃ­nez (Mundugleo)
+180114,1801,Constantino FernÃ¡ndez (Cab. En Cullitahua)
+180115,1801,Huachi Grande
+180116,1801,Izamba
+180117,1801,Juan Benigno Vela
+180118,1801,Montalvo
+180119,1801,Pasa
+180120,1801,Picaigua
+180121,1801,PilagÃ¼Ã­n (PilahÃ¼Ã­n)
+180122,1801,Quisapincha (Quizapincha)
+180123,1801,San BartolomÃ© de Pinllog
+180124,1801,San Fernando (Pasa San Fernando)
+180125,1801,Santa Rosa
+180126,1801,Totoras
+180127,1801,Cunchibamba
+180128,1801,Unamuncho
+180201,1802,BaÃ±os de Agua Santa
+180202,1802,Lligua
+180203,1802,RÃ­o Negro
+180204,1802,RÃ­o Verde
+180205,1802,Ulba
+180301,1803,Cevallos
+180401,1804,Mocha
+180402,1804,PinguilÃ­
+180501,1805,Patate
+180502,1805,El Triunfo
+180503,1805,Los Andes (Cab. En Poatug)
+180504,1805,Sucre (Cab. En Sucre-Patate Urcu)
+180601,1806,Quero
+180602,1806,Rumipamba
+180603,1806,Yanayacu - Mochapata (Cab. En Yanayacu)
+180701,1807,Pelileo
+180702,1807,Pelileo Grande
+180703,1807,Pelileo
+180704,1807,BenÃ­tez (Pachanlica)
+180705,1807,BolÃ­var
+180706,1807,CotalÃ³
+180707,1807,Chiquicha (Cab. En Chiquicha Grande)
+180708,1807,El Rosario (Rumichaca)
+180709,1807,GarcÃ­a Moreno (Chumaqui)
+180710,1807,GuambalÃ³ (HuambalÃ³)
+180711,1807,Salasaca
+180801,1808,Ciudad Nueva
+180802,1808,PÃ­llaro
+180803,1808,PÃ­llaro
+180804,1808,Baquerizo Moreno
+180805,1808,Emilio MarÃ­a TerÃ¡n (Rumipamba)
+180806,1808,Marcos Espinel (Chacata)
+180807,1808,Presidente Urbina (Chagrapamba -Patzucul)
+180808,1808,San AndrÃ©s
+180809,1808,San JosÃ© de PoalÃ³
+180810,1808,San Miguelito
+180901,1809,Tisaleo
+180902,1809,Quinchicoto
+190101,1901,El LimÃ³n
+190102,1901,Zamora
+190103,1901,Zamora
+190104,1901,Cumbaratza
+190105,1901,Guadalupe
+190106,1901,Imbana (La Victoria de Imbana)
+190107,1901,Paquisha
+190108,1901,Sabanilla
+190109,1901,Timbara
+190110,1901,Zumbi
+190111,1901,San Carlos de Las Minas
+190201,1902,Zumba
+190202,1902,Chito
+190203,1902,El Chorro
+190204,1902,El Porvenir del Carmen
+190205,1902,La Chonta
+190206,1902,Palanda
+190207,1902,Pucapamba
+190208,1902,San Francisco del Vergel
+190209,1902,Valladolid
+190210,1902,San AndrÃ©s
+190301,1903,Guayzimi
+190302,1903,Zurmi
+190303,1903,Nuevo ParaÃ­so
+190401,1904,28 de Mayo (San JosÃ© de Yacuambi)
+190402,1904,La Paz
+190403,1904,Tutupali
+190501,1905,Yantzaza (Yanzatza)
+190502,1905,ChicaÃ±a
+190503,1905,El Pangui
+190504,1905,Los Encuentros
+190601,1906,El Pangui
+190602,1906,El Guisme
+190603,1906,Pachicutza
+190604,1906,Tundayme
+190701,1907,Zumbi
+190702,1907,Paquisha
+190703,1907,Triunfo-Dorado
+190704,1907,Panguintza
+190801,1908,Palanda
+190802,1908,El Porvenir del Carmen
+190803,1908,San Francisco del Vergel
+190804,1908,Valladolid
+190805,1908,La Canela
+190901,1909,Paquisha
+190902,1909,Bellavista
+190903,1909,Nuevo Quito
+200101,2001,Puerto Baquerizo Moreno
+200102,2001,El Progreso
+200103,2001,Isla Santa MarÃ­a (Floreana) (Cab. En Pto. Velasco Ibarra)
+200201,2002,Puerto Villamil
+200202,2002,TomÃ¡s de Berlanga (Santo TomÃ¡s)
+200301,2003,Puerto Ayora
+200302,2003,Bellavista
+200303,2003,Santa Rosa (Incluye La Isla Baltra)
+210101,2101,Nueva Loja
+210102,2101,Cuyabeno
+210103,2101,Dureno
+210104,2101,General FarfÃ¡n
+210105,2101,Tarapoa
+210106,2101,El Eno
+210107,2101,Pacayacu
+210108,2101,JambelÃ­
+210109,2101,Santa Cecilia
+210110,2101,Aguas Negras
+210201,2102,El Dorado de Cascales
+210202,2102,El Reventador
+210203,2102,Gonzalo Pizarro
+210204,2102,LumbaquÃ­
+210205,2102,Puerto Libre
+210206,2102,Santa Rosa de SucumbÃ­os
+210301,2103,Puerto El Carmen del Putumayo
+210302,2103,Palma Roja
+210303,2103,Puerto BolÃ­var (Puerto MontÃºfar)
+210304,2103,Puerto RodrÃ­guez
+210305,2103,Santa Elena
+210401,2104,Shushufindi
+210402,2104,Limoncocha
+210403,2104,PaÃ±acocha
+210404,2104,San Roque (Cab. En San Vicente)
+210405,2104,San Pedro de Los Cofanes
+210406,2104,Siete de Julio
+210501,2105,La Bonita
+210502,2105,El PlayÃ³n de San Francisco
+210503,2105,La SofÃ­a
+210504,2105,Rosa Florida
+210505,2105,Santa BÃ¡rbara
+210601,2106,El Dorado de Cascales
+210602,2106,Santa Rosa de SucumbÃ­os
+210603,2106,Sevilla
+210701,2107,Tarapoa
+210702,2107,Cuyabeno
+210703,2107,Aguas Negras
+220101,2201,Puerto Francisco de Orellana (El Coca)
+220102,2201,Dayuma
+220103,2201,Taracoa (Nueva Esperanza: Yuca)
+220104,2201,Alejandro Labaka
+220105,2201,El Dorado
+220106,2201,El EdÃ©n
+220107,2201,GarcÃ­a Moreno
+220108,2201,InÃ©s Arango (Cab. En Western)
+220109,2201,La Belleza
+220110,2201,Nuevo ParaÃ­so (Cab. En UniÃ³n
+220111,2201,San JosÃ© de Guayusa
+220112,2201,San Luis de Armenia
+220201,2202,Tipitini
+220202,2202,Nuevo Rocafuerte
+220203,2202,CapitÃ¡n Augusto Rivadeneyra
+220204,2202,Cononaco
+220205,2202,Santa MarÃ­a de Huiririma
+220206,2202,Tiputini
+220207,2202,YasunÃ­
+220301,2203,La Joya de Los Sachas
+220302,2203,Enokanqui
+220303,2203,Pompeya
+220304,2203,San Carlos
+220305,2203,San SebastiÃ¡n del Coca
+220306,2203,Lago San Pedro
+220307,2203,Rumipamba
+220308,2203,Tres de Noviembre
+220309,2203,UniÃ³n MilagreÃ±a
+220401,2204,Loreto
+220402,2204,Avila (Cab. En Huiruno)
+220403,2204,Puerto Murialdo
+220404,2204,San JosÃ© de Payamino
+220405,2204,San JosÃ© de Dahuano
+220406,2204,San Vicente de Huaticocha
+230101,2301,Abraham CalazacÃ³n
+230102,2301,BombolÃ­
+230103,2301,Chiguilpe
+230104,2301,RÃ­o Toachi
+230105,2301,RÃ­o Verde
+230106,2301,Santo Domingo de Los Colorados
+230107,2301,Zaracay
+230108,2301,Santo Domingo de Los Colorados
+230109,2301,AlluriquÃ­n
+230110,2301,Puerto LimÃ³n
+230111,2301,Luz de AmÃ©rica
+230112,2301,San Jacinto del BÃºa
+230113,2301,Valle Hermoso
+230114,2301,El Esfuerzo
+230115,2301,Santa MarÃ­a del Toachi
+240101,2401,Ballenita
+240102,2401,Santa Elena
+240103,2401,Santa Elena
+240104,2401,Atahualpa
+240105,2401,Colonche
+240106,2401,Chanduy
+240107,2401,Manglaralto
+240108,2401,SimÃ³n BolÃ­var (Julio Moreno)
+240109,2401,San JosÃ© de AncÃ³n
+240201,2402,La Libertad
+240301,2403,Carlos Espinoza Larrea
+240302,2403,Gral. Alberto EnrÃ­quez Gallo
+240303,2403,Vicente Rocafuerte
+240304,2403,Santa Rosa
+240305,2403,Salinas
+240306,2403,Anconcito
+240307,2403,JosÃ© Luis Tamayo (Muey)
+250101,2501,Las Golondrinas
+250102,2501,Manga del Cura
+250103,2501,El Piedrero
