@@ -7,7 +7,9 @@ WHENEVER SQLERROR CONTINUE;
 SPOOL data/output/plan_ejecucion_dw.log REPLACE;
 -- Si las tablas base estan en otro esquema, descomenta y ajusta:
 -- ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;
+@scripts/sql/oltp/00_create_base_tables.sql
 @scripts/sql/oltp/00_require_base_tables.sql
+@scripts/sql/oltp/05_seed_transactional_data.sql
 @scripts/sql/oltp/01_create_ciudad_table.sql
 @data/output/ciudades/insert_ciudad.sql
 @scripts/sql/oltp/02_add_ciudad_to_clientes.sql

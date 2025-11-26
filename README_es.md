@@ -26,11 +26,13 @@ Estructura de carpetas (que hace cada una)
 - EsquemaOriginal/TABLA-ORIGINAL.sql: referencia del modelo previo sin ubicacion (no se ejecuta en el plan por defecto).
 
 Detalle de scripts SQL (OLTP)
+- 00_create_base_tables.sql: crea CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES con columnas mínimas si no existen, para poder ejecutar el plan sin un esquema previo.
 - 00_require_base_tables.sql: valida que existan CLIENTES, PRODUCTOS, ORDENES, DETALLE_ORDENES en el esquema actual.
 - 01_create_ciudad_table.sql: crea CIUDAD (CIUDADID PK, nombre, provincia, lat/long, zona_horaria) con secuencia y trigger que autoincrementa.
 - 02_add_ciudad_to_clientes.sql: agrega CIUDADID a CLIENTES, crea FK `FK_CLIENTES_CIUDAD` e indice. Idempotente.
 - 03_assign_random_city_to_clients.sql: bloque PL/SQL que asigna una CIUDADID aleatoria a clientes sin valor (usa DBMS_RANDOM y lista en memoria).
 - 04_create_province_canton_parish_tables.sql: crea PROVINCIAS, CANTONES, PARROQUIAS con PK/FK, secuencias y triggers de autoincremento.
+- 05_seed_transactional_data.sql: llena CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES con datos de ejemplo (30+ filas en detalle) solo cuando las tablas están vacias.
 
 Detalle de scripts SQL (DW/ETL)
 - dw/01_dw_star_schema_and_top_product_view.sql: crea dimensiones Tiempo, Categoria, Producto, Ubicacion; hecho DW_FACT_VENTAS; vista `VW_MAS_VENDIDO` (top producto por fecha/categoria/provincia/ciudad).
@@ -45,20 +47,35 @@ Plan unico de ejecucion
 - Orden: valida base -> crea CIUDAD -> carga ciudades -> agrega FK y asigna ciudad a clientes -> crea jerarquia geografica -> crea DW + vista -> ejecuta ETL -> consultas de verificacion.
 - Personalizacion: si tus tablas base estan en otro esquema, descomenta y ajusta `ALTER SESSION SET CURRENT_SCHEMA=...` al inicio del plan. Si ya tienes las tablas base, no se recrean (TABLA-ORIGINAL no se llama por defecto).
 
-Ejecutar end-to-end (modo tipico)
-1) Generar catalogo de ciudades (si ya existe `data/output/ciudades/insert_ciudad.sql`, puedes saltar):
+Pasos para usar la aplicación
+1) Genera el catálogo de ciudades si `data/output/ciudades/insert_ciudad.sql` no existe o está desactualizado:
+   ```
    python .\scripts\python\download_ecuador_cities.py
-   # O con fuente local:
+   ```
+   Opcionalmente carga desde un archivo local ya descargado:
+   ```
    python .\scripts\python\download_ecuador_cities.py --source .\data\raw\ciudades\EC.txt
-
-2) Regenerar plan (opcional si ya existe):
+   ```
+2) Si modificaste scripts o quieres regenerar el plan completo, ejecútalo (usa `--skip-cities` si no quieres volver a generar el catálogo):
+   ```
    python .\scripts\python\run_full_etl_pipeline.py
-   # Para no regenerar ciudades:
    python .\scripts\python\run_full_etl_pipeline.py --skip-cities
-
-3) Ejecutar en Oracle (SQL*Plus/SQLcl) desde la raiz del repo:
+   ```
+3) Ejecuta el plan en Oracle (SQL*Plus/SQLcl) desde la raíz del repositorio:
+   ```
    sqlplus usuario/clave@tns @data/output/plan_ejecucion_dw.sql
-   El log queda en `data/output/plan_ejecucion_dw.log`. La sesion no se cierra aunque haya errores (revisa el log).
+   ```
+   El log queda en `data/output/plan_ejecucion_dw.log`; la sesión no se cierra aunque haya errores (revisa el log para comprobar cada etapa).
+
+Consultas finales para verificar el cumplimiento del enunciado
+- `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;` (≈9827 filas si cargaste GeoNames).
+- `SELECT COUNT(*) FROM CLIENTES WHERE CIUDADID IS NULL;` (debe ser 0 tras la asignación aleatoria).
+- `SELECT ci.CIUDADID, ci.NOMBRE, ci.PROVINCIA FROM CLIENTES cl JOIN CIUDAD ci ON cl.CIUDADID = ci.CIUDADID WHERE ROWNUM <= 5;` (asegura que cada cliente apunta a una ciudad).
+- `SELECT COUNT(*) FROM PROVINCIAS;`, `SELECT COUNT(*) FROM CANTONES;`, `SELECT COUNT(*) FROM PARROQUIAS;` (las tablas están listas para cargar datos jerárquicos, puedes traerlos desde `data/raw/jerarquia` o el PDF del censo).
+- `SELECT COUNT(*) FROM DW_DIM_UBICACION;` (debe sumar una fila adicional con `UbicacionID = 0` para el valor `DESCONOCIDA`).
+- `SELECT COUNT(*) FROM DW_FACT_VENTAS;` (espera >0 si el detalle de ordenes se sembró y procesó correctamente).
+- `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;` (muestra el producto más vendido por combinación fecha/categoría/provincia/ciudad).
+- `SELECT Fecha, Categoria, Provincia, Ciudad, Producto, Total_Vendido FROM VW_MAS_VENDIDO WHERE Fecha >= DATE '2024-01-01' AND Categoria IS NOT NULL ORDER BY Fecha, Categoria, Provincia, Ciudad FETCH FIRST 5 ROWS ONLY;` (ejemplo para validar la desagregación por tiempo y ubicación).
 
 Consultas de validacion rapida
 - Conteo de ciudades: `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;` (esperado: 9827 si cargaste GeoNames EC).
