@@ -1,82 +1,111 @@
-# Informe y manual operativo
+# Informe operativo completo
 
-## 1. Qué hace el programa
-Este proyecto amplía el esquema de pedidos (CLIENTES, PRODUCTOS, ORDENES, DETALLE_ORDENES) con un módulo de ubicación completo (ciudades + jerarquía provincias/cantones/parroquias) y construye un data warehouse en estrella que permite analizar ventas por tiempo, categoría, producto y ubicación. El proceso automatiza:
+## 1. Resumen ejecutivo
+Este repositorio automatiza la construcción de un entorno OLTP enriquecido (CLIENTES, PRODUCTOS, ORDENES, DETALLE_ORDENES, CIUDAD y jerarquía geográfica) y su transformación posterior en un Data Warehouse en estrella. El flujo se centra en `scripts/python/run_full_etl_pipeline.py`, que genera catálogos de ciudades y jerarquía, crea un plan SQL (`data/output/plan_ejecucion_dw.sql`) y prepara todos los artefactos que deben ejecutarse en Oracle para que el DW quede poblado con datos de prueba realistas y coherentes.
 
-- La descarga/normalización del catálogo de ciudades (GeoNames) y la creación de `CIUDAD`.
-- La extracción de la jerarquía geográfica desde los dumps de `Datos-Geograficos-Ecuador`.
-- La creación de tablas geográficas (PROVINCIAS, CANTONES, PARROQUIAS) y del esquema DW (`DW_DIM_TIEMPO`, `DW_DIM_CATEGORIA`, `DW_DIM_PRODUCTO`, `DW_DIM_UBICACION`, `DW_FACT_VENTAS`).
-- La vista `VW_MAS_VENDIDO` que reporta el producto más vendido por fecha/categoría/provincia/ciudad.
-- El plan maestro (`data/output/plan_ejecucion_dw.sql`) encadena la preparación OLTP y la carga ETL.
+## 2. Objetivos y alcance
 
-El programa se instrumenta a través de `scripts/python/run_full_etl_pipeline.py`, que reconstruye los catálogos, construye el plan SQL y brinda retroalimentación sobre la cantidad de entidades generadas. Su flujo consiste en: validar tablas base ➜ generar ciudades y jerarquía ➜ crear objetos OLTP/DW ➜ ejecutar ETL en la bases de datos.
+- **Objetivo principal**: disponer de un pipeline reproducible que reconstruya desde cero el esquema transaccional y produzca dimensiones/factos listos para análisis de ventas.
+- **Ámbito**: el informe cubre la preparación de datos, creación de tablas, carga de datos semilla (≥30 filas por tabla), armado del esquema estrella, vista de top producto y el ETL hacia las tablas DW.
+- **Indicadores**: al ejecutar el plan se espera contar con al menos 30 clientes/productos/órdenes, jerarquía geográfica consistente, dimensiones DW llenas y la vista `VW_MAS_VENDIDO` reflejando el producto más vendido por provincia-ciudad-fecha.
 
-## 2. Arquitectura de carpetas
+## 3. Arquitectura del repositorio
 
-### `data/`
-- `raw/ciudades/`: datos de GeoNames (`EC.txt`, `EC.zip`, `admin1CodesASCII.txt`). Los utiliza `scripts/python/ciudades/download_ecuador_cities.py` para recrear `ciudades_ec.csv` e `insert_ciudad.sql`.
-- `raw/jerarquia/`: CSV actualizados con 25 provincias, 224 cantones y 1399 parroquias. Los genera `scripts/python/jerarquia/build_jerarquia_csv.py` a partir de los dumps SQL.
-- `Datos-Geograficos-Ecuador/`: dumps originales (`provincias.sql`, `cantones.sql`, `parroquias.sql`) que sirven como fuente de la jerarquía completa.
-- `output/ciudades/`: catálogo listo para insertar en Oracle (`ciudades_ec.csv`, `insert_ciudad.sql`).
-- `output/jerarquia/`: script de carga combinado (`insert_jerarquia.sql`) que elimina y vuelve a insertar la jerarquía, realinea secuencias y prepara las tablas.
-- `output/plan_ejecucion_dw.sql`: plan maestro con todos los scripts necesarios y consultas de verificación.
+### 3.1 `data/`
 
-- `oltp/`: scripts transaccionales (validación de tablas base, creación de CIUDAD, agregación de FK, jerarquía geográfica y datos semilla).
-- `05_seed_transactional_data.sql`: garantiza al menos 50 filas en CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES y debe ejecutarse antes del DW para alimentar dimensiones y el hecho.
-- `dw/`: crea el esquema estrella y la vista `VW_MAS_VENDIDO`.
-- `etl/`: `load_dw_from_oltp.sql` realiza MERGE de dimensiones y carga de hecho considerando descuentos y ubicaciones desconocidas.
+- `raw/ciudades/`: descargas oficiales de GeoNames (`EC.txt`, `EC.zip`, `admin1CodesASCII.txt`). Se usan para regenerar `ciudades_ec.csv`.
+- `raw/jerarquia/`: CSV de provincias/cantones/parroquias, reconstruidos desde los dumps SQL oficiales ubicados en `data/Datos-Geograficos-Ecuador/`.
+- `output/ciudades/`: contiene el CSV procesado y `insert_ciudad.sql`.
+- `output/jerarquia/`: script combinado de jerarquía (`insert_jerarquia.sql`) con DELETE/INSERT idempotente y realineamiento de secuencias.
+- `output/plan_ejecucion_dw.sql`: plan maestro que encadena todos los scripts, prompts de validación y comandos finales.
+- `Datos-Geograficos-Ecuador/`: dumps originales (`provincias.sql`, `cantones.sql`, `parroquias.sql`) usados como fuente de jerarquía.
 
-### `scripts/python/`
-- `ciudades/download_ecuador_cities.py`: descarga/parses GeoNames y escribe CSV + SQL idempotente.
-- `jerarquia/build_jerarquia_csv.py`: parsea los INSERTs de los dumps SQL y construye los CSV necesarios para la jerarquía. Reloadable para actualizaciones futuras.
-- `jerarquia/generate_jerarquia_inserts.py`: convierte los CSV (o SQL manuales) en un único script de carga con DELETEs y realineamiento de secuencias.
-- `run_full_etl_pipeline.py`: orquesta la regeneración de catálogos, el plan SQL y muestra resultados. Acepta opciones como `--skip-cities`, `--skip-jerarquia-csv`, `--source` y `--jerarquia-source`.
+### 3.2 `scripts/`
 
-## 3. Manual de operación
+- `python/`:
+  - `run_full_etl_pipeline.py`: descarga catálogos, construye la jerarquía, escribe el plan SQL y reporta métricas de generación.
+  - `ciudades/download_ecuador_cities.py`: obtiene GeoNames (local o remoto) y escribe CSV/SQL de CIUDAD.
+  - `jerarquia/build_jerarquia_csv.py`: extrae de los dumps SQL la jerarquía y escribe CSV.
+  - `jerarquia/generate_jerarquia_inserts.py`: empaqueta los CSV en un único script con DELETE/INSERT y secuencias.
 
-### 3.1 Preparación
-1. **Fuentes externas**: descargar GeoNames `EC.zip` y `admin1CodesASCII.txt` dentro de `data/raw/ciudades/` (el script los baja automáticamente si no están).
-2. **Jerarquía oficial**: mantener `data/Datos-Geograficos-Ecuador` con los archivos SQL originales; no es necesario editarlos.
+- `sql/oltp/`:
+  - `00_create_base_tables.sql`: crea CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES si no existen.
+  - `00_require_base_tables.sql`: valida su existencia antes de continuar.
+  - `05_seed_transactional_data.sql`: inserta 30 clientes/productos/órdenes y 60 líneas de detalle con datos realistas (nombres, emails, precios, fechas 2024).
+  - `01_create_ciudad_table.sql`, `02_add_ciudad_to_clientes.sql`, `03_assign_random_city_to_clients.sql`: habilitan CIUDAD y asignan ciudades a clientes.
+  - `04_create_province_canton_parish_tables.sql` + `data/output/jerarquia/insert_jerarquia.sql`: crean y cargan la jerarquía geográfica oficial.
 
-### 3.2 Generación de catálogos
-1. Generar ciudades:
-   ```
-   python .\scripts\python\ciudades\download_ecuador_cities.py
-   ```
-   Usa `--source <ruta>` si ya tienes `EC.txt` o `EC.zip` descargado.
-2. Generar jerarquía:
-   ```
-   python .\scripts\python\jerarquia\build_jerarquia_csv.py
-   ```
-3. Combinar en un plan:
-   ```
+- `sql/dw/` y `sql/etl/`:
+  - `dw/01_dw_star_schema_and_top_product_view.sql`: define dimensiones, hechos, secuencias y la vista `VW_MAS_VENDIDO`.
+  - `etl/load_dw_from_oltp.sql`: inserta la fila "DESCONOCIDA", carga/actualiza dimensiones y hechos con `MERGE`.
+
+## 4. Flujo completo de ejecución
+
+1. **Regeneración de catálogos**:
+   ```powershell
    python .\scripts\python\run_full_etl_pipeline.py
-   python .\scripts\python\run_full_etl_pipeline.py --skip-cities
    ```
-   Si los CSV ya están listos, añade `--skip-jerarquia-csv` para ahorrar tiempo.
+   Opciones útiles:
+   - `--skip-cities`: usa `insert_ciudad.sql` existente.
+   - `--skip-jerarquia-csv`: evita recalcular los CSV jerárquicos.
+   - `--source` / `--jerarquia-source`: rutas locales con los datos base ya descargados.
 
-### 3.3 Ejecución en Oracle
-1. Ejecutar el plan:
+2. **Plan maestro** (`data/output/plan_ejecucion_dw.sql`):
+   - Crea las tablas base y valida su existencia.
+   - Ejecuta `05_seed_transactional_data.sql` antes de construir la jerarquía.
+   - Crea CIUDAD, carga ciudades y asigna referencias.
+   - Construye jerarquía y llena DW.
+   - Ejecuta `load_dw_from_oltp.sql` para poblar dimensiones y hechos.
+   - Incluye prompts para verificar ciudades, DW_DIM_UBICACION y VW_MAS_VENDIDO.
+
+3. **Ejecución en Oracle**:
    ```sql
    sqlplus usuario/clave@tns @data/output/plan_ejecucion_dw.sql
    ```
-2. Las consultas finales incluidas en el plan permiten verificar rápidamente el número de ciudades, la jerarquía y el top product.
+   El plan es idempotente: evita reinsertar si ya hay filas y solo recrea objetos faltantes.
 
-### 3.4 Validación
-- `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;`
-- `SELECT COUNT(*) FROM CLIENTES WHERE CIUDADID IS NULL;`
-- `SELECT COUNT(*) FROM PROVINCIAS;` / `CANTONES` / `PARROQUIAS`.
-- `SELECT COUNT(*) FROM DW_DIM_UBICACION;`
-- `SELECT COUNT(*) FROM DW_FACT_VENTAS;` y `SELECT SUM(CantidadVendida), SUM(MontoTotal)`.
-- `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;`
-- Consulta con filtro por fecha/categoría/provincia/ciudad (fecha >= 2024-01-01).
+## 5. Datos y resultados esperados
 
-### 3.5 Mantenimiento
-- Para regenerar la jerarquía completa, reejecuta `build_jerarquia_csv.py` y luego `run_full_etl_pipeline.py`.
-- Para refrescar solo ciudades, ejecuta `download_ecuador_cities.py` y el plan con `--skip-jerarquia-csv`.
-- Si modificas la jerarquía manualmente, puedes colocar SQL (`insert_provincias.sql`, `insert_cantones.sql`, `insert_parroquias.sql`) dentro de `data/output/jerarquia/` y el generador los usará directamente.
+- **Clientes**: 30 filas con nombres/especialidades latinas, emails y teléfonos representativos. Cada cliente aparece en `CLIENTES`.
+- **Productos**: 30 productos premium + domésticos (laptops, muebles, hogar, deportes). Los precios se usan en `DETALLE_ORDENES`.
+- **Órdenes**: 30 pedidos distribuidos durante 2024, con descuentos variados (0-15%).
+- **Detalle de órdenes**: 60 líneas asociadas a 30 órdenes, cada una ligando `PRODUCTOS` con cantidades y precios capturados de la tabla original.
+- **DW**: `DW_DIM_TIEMPO`, `DW_DIM_CATEGORIA`, `DW_DIM_PRODUCTO`, `DW_DIM_UBICACION`, `DW_FACT_VENTAS` llenas via `MERGE`.
+- **Vista VW_MAS_VENDIDO**: reporta el producto más vendido por fecha/categoría/provincia/ciudad según los hechos cargados.
 
-## 4. Notas y troubleshooting
-- Cambia el esquema con `ALTER SESSION SET CURRENT_SCHEMA=...` si recibes ORA-00942 en las tablas base o crea sinónimos.
-- El plan usa `WHENEVER SQLERROR CONTINUE` para no detenerse con errores no críticos; revisa la salida o agrega `SPOOL` en Oracle si necesitas un log persistente.
-- Si los CSV de jerarquía están vacíos, `generate_jerarquia_inserts.py` crea un archivo con instrucciones para rellenarlos y aborta la carga automática.
+## 6. Validación y métricas
+
+- Ejecutar las siguientes consultas tras correr el plan:
+  ```sql
+  SELECT COUNT(*) FROM CLIENTES;
+  SELECT COUNT(*) FROM PRODUCTOS;
+  SELECT COUNT(*) FROM ORDENES;
+  SELECT COUNT(*) FROM DETALLE_ORDENES;
+  SELECT COUNT(*) FROM DW_DIM_UBICACION;
+  SELECT COUNT(*) FROM DW_FACT_VENTAS;
+  SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 5;
+  ```
+- Asegurar que los conteos de CLIENTES/PRODUCTOS/ORDENES/DETALLE_ORDENES sean ≥ 30.
+- Verificar que `DW_DIM_UBICACION` incluya la fila “DESCONOCIDA” (UbicacionID = 0) y las ciudades asignadas.
+- Confirmar que `VW_MAS_VENDIDO` muestra resultados con provincia, ciudad y producto coherentes.
+- El plan ya imprime prompts con conteos de CIUDAD y DW_DIM_UBICACION, facilitando esta validación manual.
+
+## 7. Observaciones técnicas
+
+- La generación de jerarquía mantiene todas las provincias/cantones/parroquias actualizadas desde los dumps originales y se puede regenerar ejecutando `build_jerarquia_csv.py` seguido de `run_full_etl_pipeline.py`.
+- Las cargas DW usan `MERGE` para evitar duplicados y aplicar actualizaciones si cambian precios o categorías.
+- Las secuencias están definidas en `dw/01_dw_star_schema...` y en los scripts OLTP (ej. `SEQ_CIUDAD`). Al repetir el plan se preservan los valores anteriores con `NOCACHE/NOCYCLE`.
+- El plan activa `WHENEVER SQLERROR CONTINUE` pero se puede quitar si se desea detener ante la primera falla.
+
+## 8. Riesgos y dependencias
+
+- Requiere una instancia Oracle accesible y privilegios para crear tablas, secuencias y triggers en el esquema destino.
+- Depende de que `data/raw/ciudades` y `data/raw/jerarquia` contengan los datos oficiales o se haya descargado previamente (`download_ecuador_cities.py` gestiona GeoNames si faltan).
+- Si CIUDAD se ejecuta en otro esquema, conviene usar `ALTER SESSION SET CURRENT_SCHEMA=...` antes de ejecutar el plan.
+- Los scripts asumen que `productos` y `clientes` usan tipos `NUMBER(10)` y `VARCHAR2`; adaptarlos antes si el esquema difiere.
+
+## 9. Próximos pasos sugeridos
+
+1. Automatizar la ejecución del plan vía CI/CD conectando con una base Oracle de pruebas.
+2. Añadir scripts de verificación automatizada (unitarias o de integración) que validen la vista `VW_MAS_VENDIDO` tras cada carga.
+3. Externalizar datos de clientes/productos a CSV o a un conector para facilitar la entrada de nuevas fuentes reales.
