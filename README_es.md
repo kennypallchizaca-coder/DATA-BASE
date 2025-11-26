@@ -32,7 +32,7 @@ Detalle de scripts SQL (OLTP)
 - 02_add_ciudad_to_clientes.sql: agrega CIUDADID a CLIENTES, crea FK `FK_CLIENTES_CIUDAD` e indice. Idempotente.
 - 03_assign_random_city_to_clients.sql: bloque PL/SQL que asigna una CIUDADID aleatoria a clientes sin valor (usa DBMS_RANDOM y lista en memoria).
 - 04_create_province_canton_parish_tables.sql: crea PROVINCIAS, CANTONES, PARROQUIAS con PK/FK, secuencias y triggers de autoincremento.
-- 05_seed_transactional_data.sql: llena CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES con datos de ejemplo (30+ filas en detalle) solo cuando las tablas están vacias.
+- 05_seed_transactional_data.sql: llena CLIENTES, PRODUCTOS, ORDENES y DETALLE_ORDENES con datos de ejemplo (30+ filas en detalle) solo cuando las tablas están vacías.
 
 Detalle de scripts SQL (DW/ETL)
 - dw/01_dw_star_schema_and_top_product_view.sql: crea dimensiones Tiempo, Categoria, Producto, Ubicacion; hecho DW_FACT_VENTAS; vista `VW_MAS_VENDIDO` (top producto por fecha/categoria/provincia/ciudad).
@@ -65,24 +65,26 @@ Pasos para usar la aplicación
    ```
    sqlplus usuario/clave@tns @data/output/plan_ejecucion_dw.sql
    ```
-   El log queda en `data/output/plan_ejecucion_dw.log`; la sesión no se cierra aunque haya errores (revisa el log para comprobar cada etapa).
+   El plan ya no genera automáticamente `data/output/plan_ejecucion_dw.log`; si necesitas un log puedes abrir una sesión con `SPOOL` antes de llamar al plan (o crear manualmente el archivo dentro de `data/output`).
 
-Consultas finales para verificar el cumplimiento del enunciado
-- `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;` (≈9827 filas si cargaste GeoNames).
+- `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;` (≈9827 filas si cargaste GeoNames; asegúrate de ejecutar `data/output/ciudades/insert_ciudad.sql` para poblarla antes del plan).
 - `SELECT COUNT(*) FROM CLIENTES WHERE CIUDADID IS NULL;` (debe ser 0 tras la asignación aleatoria).
-- `SELECT ci.CIUDADID, ci.NOMBRE, ci.PROVINCIA FROM CLIENTES cl JOIN CIUDAD ci ON cl.CIUDADID = ci.CIUDADID WHERE ROWNUM <= 5;` (asegura que cada cliente apunta a una ciudad).
+- `SELECT ci.CIUDADID, ci.NOMBRE, ci.PROVINCIA FROM CLIENTES cl JOIN CIUDAD ci ON cl.CIUDADID = ci.CIUDADID WHERE ROWNUM <= 5;` (asegura que cada cliente apunta a una ciudad real; con la muestra mínima aparecen Quito/Guayaquil/Cuenca).
 - `SELECT COUNT(*) FROM PROVINCIAS;`, `SELECT COUNT(*) FROM CANTONES;`, `SELECT COUNT(*) FROM PARROQUIAS;` (las tablas están listas para cargar datos jerárquicos, puedes traerlos desde `data/raw/jerarquia` o el PDF del censo).
-- `SELECT COUNT(*) FROM DW_DIM_UBICACION;` (debe sumar una fila adicional con `UbicacionID = 0` para el valor `DESCONOCIDA`).
+- `SELECT COUNT(*) FROM DW_DIM_UBICACION;` (espera 1 + número de ciudades cargadas; la fila `UbicacionID = 0` corresponde a "DESCONOCIDA").
 - `SELECT COUNT(*) FROM DW_FACT_VENTAS;` (espera >0 si el detalle de ordenes se sembró y procesó correctamente).
-- `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;` (muestra el producto más vendido por combinación fecha/categoría/provincia/ciudad).
-- `SELECT Fecha, Categoria, Provincia, Ciudad, Producto, Total_Vendido FROM VW_MAS_VENDIDO WHERE Fecha >= DATE '2024-01-01' AND Categoria IS NOT NULL ORDER BY Fecha, Categoria, Provincia, Ciudad FETCH FIRST 5 ROWS ONLY;` (ejemplo para validar la desagregación por tiempo y ubicación).
+- `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;` (muestra el producto más vendido por combinación fecha/categoría/provincia/ciudad; las ubicaciones dejarán de ser "DESCONOCIDA" tras cargar ciudades).
+- `SELECT Fecha, Categoria, Provincia, Ciudad, Producto, Total_Vendido FROM VW_MAS_VENDIDO WHERE Fecha >= DATE '2024-01-01' AND Categoria IS NOT NULL ORDER BY Fecha, Categoria, Provincia, Ciudad FETCH FIRST 5 ROWS ONLY;` (ejemplo para validar la desagregación por tiempo y ubicación y confirmar que `Provincia` y `Ciudad` vienen pobladas, ya sea de GeoNames o de la muestra mínima).
 
-Consultas de validacion rapida
-- Conteo de ciudades: `SELECT COUNT(*) AS total_ciudades FROM CIUDAD;` (esperado: 9827 si cargaste GeoNames EC).
-- Clientes sin ciudad: `SELECT COUNT(*) FROM CLIENTES WHERE CIUDADID IS NULL;` (esperado: 0 tras asignacion).
-- Dimension ubicacion: `SELECT COUNT(*) FROM DW_DIM_UBICACION;` (esperado: 9828 incluyendo fila DESCONOCIDA con UbicacionID=0).
-- Hecho sin FK nulas: `SELECT COUNT(*) FROM DW_FACT_VENTAS WHERE ProductoID IS NULL OR TiempoID IS NULL OR UbicacionID IS NULL OR CategoriaID IS NULL;` (esperado: 0).
-- Vista top producto: `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;` (debera devolver filas si hay ventas cargadas).
+Validación del Data Warehouse
+- `SELECT COUNT(*) FROM DW_DIM_TIEMPO;` (cuenta las fechas únicas procesadas desde `ORDENES`).
+- `SELECT COUNT(*) FROM DW_DIM_PRODUCTO;` y `SELECT COUNT(*) FROM DW_DIM_CATEGORIA;` (verifica que los productos y categorías llegan y se deduplican).
+- `SELECT COUNT(*) FROM DW_DIM_UBICACION;` (incluye la fila `UbicacionID = 0` para “DESCONOCIDA” más las ciudades reales).
+- `SELECT COUNT(*) FROM DW_FACT_VENTAS;` (debe ser >0 si el hecho se cargó correctamente).
+- `SELECT SUM(CantidadVendida), SUM(MontoTotal) FROM DW_FACT_VENTAS;` (comprueba que las medidas no quedan en NULL).
+- `SELECT COUNT(*) FROM DW_FACT_VENTAS f WHERE f.ProductoID IS NULL OR f.TiempoID IS NULL OR f.UbicacionID IS NULL OR f.CategoriaID IS NULL;` (debe retornar 0 para asegurar integridad referencial).
+- `SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 10;` (muestra el producto más vendido por fecha/categoría/provincia/ciudad con ubicaciones reales).
+- `SELECT Fecha, Categoria, Provincia, Ciudad, Producto, Total_Vendido FROM VW_MAS_VENDIDO WHERE Fecha >= DATE '2024-01-01' ORDER BY Fecha, Categoria, Provincia, Ciudad FETCH FIRST 5 ROWS ONLY;` (verifica la desagregación múltiple en la vista).
 
 Notas y troubleshooting
 - Si obtienes ORA-00942 en CLIENTES/PRODUCTOS/ORDENES/DETALLE_ORDENES, cambia el schema con `ALTER SESSION SET CURRENT_SCHEMA=...` o crea sinonimos a las tablas base.

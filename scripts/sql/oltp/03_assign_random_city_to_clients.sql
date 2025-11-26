@@ -3,6 +3,7 @@
 DECLARE
     TYPE t_city_ids IS TABLE OF CIUDAD.CIUDADID%TYPE;
     l_city_ids t_city_ids;
+    v_random_city CIUDAD.CIUDADID%TYPE;
 BEGIN
     SELECT CIUDADID BULK COLLECT INTO l_city_ids FROM CIUDAD;
 
@@ -11,8 +12,9 @@ BEGIN
     END IF;
 
     FOR rec IN (SELECT CLIENTEID FROM CLIENTES WHERE CIUDADID IS NULL) LOOP
+        v_random_city := l_city_ids(TRUNC(DBMS_RANDOM.VALUE(1, l_city_ids.COUNT + 1)));
         UPDATE CLIENTES
-        SET CIUDADID = l_city_ids(TRUNC(DBMS_RANDOM.VALUE(1, l_city_ids.COUNT + 1)))
+        SET CIUDADID = v_random_city
         WHERE CLIENTEID = rec.CLIENTEID;
     END LOOP;
 

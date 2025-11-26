@@ -4,7 +4,6 @@ SET ECHO ON;
 SET FEEDBACK ON;
 SET SERVEROUTPUT ON;
 WHENEVER SQLERROR CONTINUE;
-SPOOL data/output/plan_ejecucion_dw.log REPLACE;
 -- Si las tablas base estan en otro esquema, descomenta y ajusta:
 -- ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;
 @scripts/sql/oltp/00_create_base_tables.sql

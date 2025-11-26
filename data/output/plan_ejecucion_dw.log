@@ -1,5 +1,94 @@
 SQL> -- Si las tablas base estan en otro esquema, descomenta y ajusta:
 SQL> -- ALTER SESSION SET CURRENT_SCHEMA=ESQUEMAORIGINAL;
+SQL> @scripts/sql/oltp/00_create_base_tables.sql
+SQL> -- Crea las tablas transaccionales base si no existen para que el plan pueda ejecutarse desde cero.
+SQL> -- Cada bloque sÃ³lo ejecuta el DDL cuando la tabla correspondiente estÃ¡ ausente.
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM USER_TABLES WHERE TABLE_NAME = 'CLIENTES';
+  5  	 IF v_count = 0 THEN
+  6  	     EXECUTE IMMEDIATE q'[
+  7  CREATE TABLE CLIENTES (
+  8  	 CLIENTEID NUMBER(10) PRIMARY KEY,
+  9  	 NOMBRE VARCHAR2(100),
+ 10  	 APELLIDO VARCHAR2(100),
+ 11  	 EMAIL VARCHAR2(150),
+ 12  	 TELEFONO VARCHAR2(30)
+ 13  )
+ 14  ]';
+ 15  	 END IF;
+ 16  END;
+ 17  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM USER_TABLES WHERE TABLE_NAME = 'PRODUCTOS';
+  5  	 IF v_count = 0 THEN
+  6  	     EXECUTE IMMEDIATE q'[
+  7  CREATE TABLE PRODUCTOS (
+  8  	 PRODUCTOID NUMBER(10) PRIMARY KEY,
+  9  	 DESCRIPCION VARCHAR2(255),
+ 10  	 PRECIOUNIT NUMBER(10,2),
+ 11  	 CATEGORIA VARCHAR2(100)
+ 12  )
+ 13  ]';
+ 14  	 END IF;
+ 15  END;
+ 16  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM USER_TABLES WHERE TABLE_NAME = 'ORDENES';
+  5  	 IF v_count = 0 THEN
+  6  	     EXECUTE IMMEDIATE q'[
+  7  CREATE TABLE ORDENES (
+  8  	 ORDENID NUMBER(10) PRIMARY KEY,
+  9  	 CLIENTEID NUMBER(10) NOT NULL,
+ 10  	 EMPLEADOID NUMBER(10),
+ 11  	 FECHAORDEN DATE,
+ 12  	 DESCUENTO NUMBER(5,2) DEFAULT 0,
+ 13  	 CONSTRAINT FK_ORDENES_CLIENTES FOREIGN KEY (CLIENTEID) REFERENCES CLIENTES(CLIENTEID)
+ 14  )
+ 15  ]';
+ 16  	 END IF;
+ 17  END;
+ 18  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM USER_TABLES WHERE TABLE_NAME = 'DETALLE_ORDENES';
+  5  	 IF v_count = 0 THEN
+  6  	     EXECUTE IMMEDIATE q'[
+  7  CREATE TABLE DETALLE_ORDENES (
+  8  	 DETALLEID NUMBER(10) PRIMARY KEY,
+  9  	 ORDENID NUMBER(10) NOT NULL,
+ 10  	 PRODUCTOID NUMBER(10) NOT NULL,
+ 11  	 CANTIDAD NUMBER(10),
+ 12  	 PRECIOUNIT NUMBER(10,2),
+ 13  	 CONSTRAINT FK_DETALLE_ORDENES_ORDENES FOREIGN KEY (ORDENID) REFERENCES ORDENES(ORDENID),
+ 14  	 CONSTRAINT FK_DETALLE_ORDENES_PRODUCTOS FOREIGN KEY (PRODUCTOID) REFERENCES PRODUCTOS(PRODUCTOID)
+ 15  )
+ 16  ]';
+ 17  	 END IF;
+ 18  END;
+ 19  /
+
+Procedimiento PL/SQL terminado correctamente.
+
 SQL> @scripts/sql/oltp/00_require_base_tables.sql
 SQL> -- Verifica que las tablas base existan en el esquema actual.
 SQL> -- Evita fallos silenciosos si te conectas con un usuario sin CLIENTES/ORDENES/PRODUCTOS.
@@ -30,13 +119,132 @@ SQL> DECLARE
  25  	 END IF;
  26  END;
  27  /
-DECLARE
-*
-ERROR en línea 1:
-ORA-20050: Faltan tablas base en este esquema: CLIENTES, PRODUCTOS, ORDENES, 
-DETALLE_ORDENES. Conectate al esquema propietario o crea sinonimos. 
-ORA-06512: en línea 20 
 
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> @scripts/sql/oltp/05_seed_transactional_data.sql
+SQL> -- Inserta datos transaccionales de muestra (clientes, productos, ordenes y detalle de ordenes).
+SQL> -- Cada bloque se ejecuta solo si la tabla esta vacia para evitar duplicados.
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM CLIENTES;
+  5  	 IF v_count = 0 THEN
+  6  	     INSERT ALL
+  7  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (1, 'Ana', 'Perez', 'ana.perez@example.com', '0999000001')
+  8  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (2, 'Carlos', 'Lopez', 'carlos.lopez@example.com', '0999000002')
+  9  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (3, 'Maria', 'Gomez', 'maria.gomez@example.com', '0999000003')
+ 10  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (4, 'Jose', 'Rico', 'jose.rico@example.com', '0999000004')
+ 11  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (5, 'Laura', 'Salas', 'laura.salas@example.com', '0999000005')
+ 12  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (6, 'Victor', 'Molina', 'victor.molina@example.com', '0999000006')
+ 13  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (7, 'Elena', 'Paz', 'elena.paz@example.com', '0999000007')
+ 14  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (8, 'Marco', 'Blanco', 'marco.blanco@example.com', '0999000008')
+ 15  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (9, 'Claudia', 'Suarez', 'claudia.suarez@example.com', '0999000009')
+ 16  		 INTO CLIENTES (CLIENTEID, NOMBRE, APELLIDO, EMAIL, TELEFONO) VALUES (10, 'Danilo', 'Quintero', 'danilo.quintero@example.com', '0999000010')
+ 17  	     SELECT * FROM DUAL;
+ 18  	     COMMIT;
+ 19  	 END IF;
+ 20  END;
+ 21  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM PRODUCTOS;
+  5  	 IF v_count = 0 THEN
+  6  	     INSERT ALL
+  7  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2001, 'Laptop ThinkPad X1', 1200.00, 'Electronica')
+  8  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2002, 'Monitor UltraSharp 27', 450.00, 'Electronica')
+  9  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2003, 'Silla Ergonomica Pro', 320.00, 'Mobiliario')
+ 10  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2004, 'Mesa de Oficina Steel', 220.00, 'Mobiliario')
+ 11  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2005, 'Teclado Mecanico Pro', 130.00, 'Perifericos')
+ 12  		 INTO PRODUCTOS (PRODUCTOID, DESCRIPCION, PRECIOUNIT, CATEGORIA) VALUES (2006, 'Mouse Inalambrico X2', 60.00, 'Perifericos')
+ 13  	     SELECT * FROM DUAL;
+ 14  	     COMMIT;
+ 15  	 END IF;
+ 16  END;
+ 17  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM ORDENES;
+  5  	 IF v_count = 0 THEN
+  6  	     INSERT ALL
+  7  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3001, 1, 501, DATE '2024-01-05', 5)
+  8  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3002, 2, 502, DATE '2024-01-11', 0)
+  9  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3003, 3, 503, DATE '2024-02-01', 10)
+ 10  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3004, 4, 501, DATE '2024-02-18', 0)
+ 11  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3005, 5, 502, DATE '2024-03-03', 7.5)
+ 12  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3006, 6, 503, DATE '2024-03-20', 0)
+ 13  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3007, 7, 501, DATE '2024-04-02', 15)
+ 14  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3008, 8, 502, DATE '2024-04-15', 0)
+ 15  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3009, 9, 503, DATE '2024-05-01', 5)
+ 16  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3010, 10, 501, DATE '2024-05-10', 0)
+ 17  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3011, 1, 502, DATE '2024-06-05', 0)
+ 18  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3012, 2, 503, DATE '2024-06-17', 10)
+ 19  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3013, 3, 501, DATE '2024-07-08', 0)
+ 20  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3014, 4, 502, DATE '2024-07-22', 2.5)
+ 21  		 INTO ORDENES (ORDENID, CLIENTEID, EMPLEADOID, FECHAORDEN, DESCUENTO) VALUES (3015, 5, 503, DATE '2024-08-03', 0)
+ 22  	     SELECT * FROM DUAL;
+ 23  	     COMMIT;
+ 24  	 END IF;
+ 25  END;
+ 26  /
+
+Procedimiento PL/SQL terminado correctamente.
+
+SQL> 
+SQL> DECLARE
+  2  	 v_count NUMBER;
+  3  BEGIN
+  4  	 SELECT COUNT(*) INTO v_count FROM DETALLE_ORDENES;
+  5  	 IF v_count = 0 THEN
+  6  	     INSERT ALL
+  7  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4001, 3001, 2001, 1, 1200.00)
+  8  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4002, 3001, 2005, 2, 130.00)
+  9  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4003, 3002, 2002, 1, 450.00)
+ 10  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4004, 3002, 2006, 1, 60.00)
+ 11  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4005, 3003, 2001, 1, 1200.00)
+ 12  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4006, 3003, 2003, 1, 320.00)
+ 13  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4007, 3004, 2004, 2, 220.00)
+ 14  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4008, 3004, 2005, 1, 130.00)
+ 15  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4009, 3005, 2002, 2, 450.00)
+ 16  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4010, 3005, 2003, 1, 320.00)
+ 17  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4011, 3006, 2006, 3, 60.00)
+ 18  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4012, 3006, 2005, 1, 130.00)
+ 19  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4013, 3007, 2001, 1, 1200.00)
+ 20  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4014, 3007, 2004, 1, 220.00)
+ 21  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4015, 3008, 2003, 2, 320.00)
+ 22  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4016, 3008, 2006, 1, 60.00)
+ 23  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4017, 3009, 2002, 1, 450.00)
+ 24  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4018, 3009, 2005, 2, 130.00)
+ 25  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4019, 3010, 2001, 1, 1200.00)
+ 26  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4020, 3010, 2006, 2, 60.00)
+ 27  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4021, 3011, 2004, 1, 220.00)
+ 28  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4022, 3011, 2005, 1, 130.00)
+ 29  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4023, 3012, 2003, 2, 320.00)
+ 30  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4024, 3012, 2002, 1, 450.00)
+ 31  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4025, 3013, 2001, 2, 1200.00)
+ 32  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4026, 3013, 2006, 1, 60.00)
+ 33  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4027, 3014, 2005, 1, 130.00)
+ 34  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4028, 3014, 2002, 1, 450.00)
+ 35  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4029, 3015, 2004, 2, 220.00)
+ 36  		 INTO DETALLE_ORDENES (DETALLEID, ORDENID, PRODUCTOID, CANTIDAD, PRECIOUNIT) VALUES (4030, 3015, 2003, 1, 320.00)
+ 37  	     SELECT * FROM DUAL;
+ 38  	     COMMIT;
+ 39  	 END IF;
+ 40  END;
+ 41  /
+
+Procedimiento PL/SQL terminado correctamente.
 
 SQL> @scripts/sql/oltp/01_create_ciudad_table.sql
 SQL> -- Crea tabla CIUDAD y objetos de soporte. Pensada para Oracle.
@@ -39432,27 +39640,19 @@ SQL> DECLARE
  30  	 END IF;
  31  END;
  32  /
-DECLARE
-*
-ERROR en línea 1:
-ORA-20002: La tabla CLIENTES no existe en este esquema. Conectate con el 
-propietario o crea un sinonimo. 
-ORA-06512: en línea 11 
 
+Procedimiento PL/SQL terminado correctamente.
 
 SQL> 
 SQL> CREATE INDEX IDX_CLIENTES_CIUDAD ON CLIENTES (CIUDADID);
-CREATE INDEX IDX_CLIENTES_CIUDAD ON CLIENTES (CIUDADID)
-                                    *
-ERROR en línea 1:
-ORA-00942: la tabla o vista no existe 
 
+Índice creado.
 
 SQL> /
 CREATE INDEX IDX_CLIENTES_CIUDAD ON CLIENTES (CIUDADID)
-                                    *
+             *
 ERROR en línea 1:
-ORA-00942: la tabla o vista no existe 
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
 
 SQL> @scripts/sql/oltp/03_assign_random_city_to_clients.sql
@@ -39461,34 +39661,26 @@ SQL> -- Usa una lista en memoria para minimizar lecturas repetitivas sobre CIUDA
 SQL> DECLARE
   2  	 TYPE t_city_ids IS TABLE OF CIUDAD.CIUDADID%TYPE;
   3  	 l_city_ids t_city_ids;
-  4  BEGIN
-  5  	 SELECT CIUDADID BULK COLLECT INTO l_city_ids FROM CIUDAD;
-  6  
-  7  	 IF l_city_ids.COUNT = 0 THEN
-  8  	     RAISE_APPLICATION_ERROR(-20001, 'No hay ciudades cargadas en la tabla CIUDAD.');
-  9  	 END IF;
- 10  
- 11  	 FOR rec IN (SELECT CLIENTEID FROM CLIENTES WHERE CIUDADID IS NULL) LOOP
- 12  	     UPDATE CLIENTES
- 13  	     SET CIUDADID = l_city_ids(TRUNC(DBMS_RANDOM.VALUE(1, l_city_ids.COUNT + 1)))
- 14  	     WHERE CLIENTEID = rec.CLIENTEID;
- 15  	 END LOOP;
- 16  
- 17  	 COMMIT;
- 18  END;
- 19  /
-    FOR rec IN (SELECT CLIENTEID FROM CLIENTES WHERE CIUDADID IS NULL) LOOP
-                                      *
-ERROR en línea 11:
-ORA-06550: línea 11, columna 39: 
-PL/SQL: ORA-00942: la tabla o vista no existe 
-ORA-06550: línea 11, columna 17: 
-PL/SQL: SQL Statement ignored 
-ORA-06550: línea 12, columna 16: 
-PL/SQL: ORA-00942: la tabla o vista no existe 
-ORA-06550: línea 12, columna 9: 
-PL/SQL: SQL Statement ignored 
+  4  	 v_random_city CIUDAD.CIUDADID%TYPE;
+  5  BEGIN
+  6  	 SELECT CIUDADID BULK COLLECT INTO l_city_ids FROM CIUDAD;
+  7  
+  8  	 IF l_city_ids.COUNT = 0 THEN
+  9  	     RAISE_APPLICATION_ERROR(-20001, 'No hay ciudades cargadas en la tabla CIUDAD.');
+ 10  	 END IF;
+ 11  
+ 12  	 FOR rec IN (SELECT CLIENTEID FROM CLIENTES WHERE CIUDADID IS NULL) LOOP
+ 13  	     v_random_city := l_city_ids(TRUNC(DBMS_RANDOM.VALUE(1, l_city_ids.COUNT + 1)));
+ 14  	     UPDATE CLIENTES
+ 15  	     SET CIUDADID = v_random_city
+ 16  	     WHERE CLIENTEID = rec.CLIENTEID;
+ 17  	 END LOOP;
+ 18  
+ 19  	 COMMIT;
+ 20  END;
+ 21  /
 
+Procedimiento PL/SQL terminado correctamente.
 
 SQL> @scripts/sql/oltp/04_create_province_canton_parish_tables.sql
 SQL> -- Esquema geografico de Ecuador basado en el listado del censo 2016.
@@ -39531,16 +39723,25 @@ Tabla creada.
 
 SQL> 
 SQL> CREATE SEQUENCE SEQ_PROVINCIA START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_PROVINCIA START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_CANTON    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_CANTON    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_PARROQUIA START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_PARROQUIA START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> 
 SQL> CREATE OR REPLACE TRIGGER TRG_PROVINCIA_BI
@@ -39652,24 +39853,39 @@ Tabla creada.
 
 SQL> 
 SQL> CREATE SEQUENCE SEQ_DW_DIM_TIEMPO	   START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_DW_DIM_TIEMPO     START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_DW_DIM_CATEGORIA  START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_DW_DIM_CATEGORIA  START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_DW_DIM_PRODUCTO   START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_DW_DIM_PRODUCTO   START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_DW_DIM_UBICACION  START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_DW_DIM_UBICACION  START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> CREATE SEQUENCE SEQ_DW_FACT_VENTAS    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+CREATE SEQUENCE SEQ_DW_FACT_VENTAS    START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE
+                *
+ERROR en línea 1:
+ORA-00955: este nombre ya lo está utilizando otro objeto existente 
 
-Secuencia creada.
 
 SQL> 
 SQL> CREATE OR REPLACE VIEW VW_MAS_VENDIDO AS
@@ -39743,11 +39959,8 @@ SQL> MERGE INTO DW_DIM_TIEMPO d
  12  WHEN NOT MATCHED THEN
  13  	 INSERT (TiempoID, Fecha, Anio, Mes, Trimestre, DiaSemana)
  14  	 VALUES (SEQ_DW_DIM_TIEMPO.NEXTVAL, s.Fecha, s.Anio, s.Mes, s.Trimestre, s.DiaSemana);
-    FROM ORDENES
-         *
-ERROR en línea 9:
-ORA-00942: la tabla o vista no existe 
 
+15 filas fusionadas.
 
 SQL> 
 SQL> COMMIT;
@@ -39765,11 +39978,8 @@ SQL> MERGE INTO DW_DIM_CATEGORIA c
   7  WHEN NOT MATCHED THEN
   8  	 INSERT (CategoriaID, Nombre)
   9  	 VALUES (SEQ_DW_DIM_CATEGORIA.NEXTVAL, s.Nombre);
-    FROM PRODUCTOS
-         *
-ERROR en línea 4:
-ORA-00942: la tabla o vista no existe 
 
+3 filas fusionadas.
 
 SQL> 
 SQL> COMMIT;
@@ -39799,11 +40009,8 @@ SQL> MERGE INTO DW_DIM_PRODUCTO dp
  19  	 SET dp.Descripcion   = s.DESCRIPCION,
  20  	     dp.PrecioUnitario = s.PRECIOUNIT,
  21  	     dp.CategoriaID   = (SELECT CategoriaID FROM DW_DIM_CATEGORIA WHERE UPPER(Nombre) = UPPER(s.CATEGORIA));
-    FROM PRODUCTOS p
-         *
-ERROR en línea 7:
-ORA-00942: la tabla o vista no existe 
 
+6 filas fusionadas.
 
 SQL> 
 SQL> COMMIT;
@@ -39886,11 +40093,8 @@ SQL> MERGE INTO DW_FACT_VENTAS f
  30  	 SET f.CantidadVendida = s.CantidadVendida,
  31  	     f.MontoTotal      = s.MontoTotal,
  32  	     f.CategoriaID     = s.CategoriaID;
-    LEFT JOIN CLIENTES cli ON cli.CLIENTEID = o.CLIENTEID
-              *
-ERROR en línea 15:
-ORA-00942: la tabla o vista no existe 
 
+30 filas fusionadas.
 
 SQL> 
 SQL> COMMIT;
@@ -39971,6 +40175,496 @@ SQL> PROMPT Top producto mas vendido (si hay datos):
 Top producto mas vendido (si hay datos):
 SQL> SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 5;
 
-ninguna fila seleccionada
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+05/01/24       2024          1                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Electronica                                                                     
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Pichincha                                                                       
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Puerto Ila                                                                      
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Laptop ThinkPad X1                                                              
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+            1                                                                   
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+                                                                                
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+05/01/24       2024          1                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Perifericos                                                                     
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Pichincha                                                                       
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Puerto Ila                                                                      
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Teclado Mecanico Pro                                                            
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+            2                                                                   
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+                                                                                
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+11/01/24       2024          1                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Electronica                                                                     
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+CaÃ±ar                                                                          
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+San NicolÃ¡s                                                                    
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Monitor UltraSharp 27                                                           
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+            1                                                                   
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+                                                                                
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+11/01/24       2024          1                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Perifericos                                                                     
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+CaÃ±ar                                                                          
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+San NicolÃ¡s                                                                    
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Mouse Inalambrico X2                                                            
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+            1                                                                   
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+                                                                                
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+01/02/24       2024          2                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Electronica                                                                     
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Guayas                                                                          
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Puerto Bajania                                                                  
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+Laptop ThinkPad X1                                                              
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+            1                                                                   
+
+FECHA          ANIO        MES                                                  
+-------- ---------- ----------                                                  
+CATEGORIA                                                                       
+--------------------------------------------------------------------------------
+PROVINCIA                                                                       
+--------------------------------------------------------------------------------
+CIUDAD                                                                          
+--------------------------------------------------------------------------------
+PRODUCTO                                                                        
+--------------------------------------------------------------------------------
+TOTAL_VENDIDO                                                                   
+-------------                                                                   
+                                                                                
+
+5 filas seleccionadas.
 
 SQL> SPOOL OFF;
