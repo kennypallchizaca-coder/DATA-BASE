@@ -395,7 +395,7 @@ FROM dual;
 
 ---
 
-## 14. Notas académicas (justificación de diseño)
+## 14. Notas académicas 
 
 1. **Separación OLTP/DW**: evita que consultas analíticas afecten la transaccionalidad.  
 2. **Dimensión Ubicación**: desagregada en provincia + ciudad para análisis geoespaciales y agregaciones a distintos niveles.  
@@ -422,16 +422,6 @@ FROM dual;
 - `scripts/sql/dw/01_dw_star_schema_and_top_product_view.sql`  
 - `scripts/sql/etl/load_dw_from_oltp.sql`  
 
----
 
-## 16. Próximos pasos sugeridos para evaluación académica
-
-1. **Prueba de integridad**: elaborar tests unitarios SQL que verifiquen FK, counts y distribuciones.  
-2. **Benchmark de carga**: medir tiempos de carga (external table vs SQL*Loader) con ~9000 ciudades.  
-3. **Análisis de escalado**: particionar `DW_FACT_VENTAS` por rango de fechas y comparar planes de ejecución.  
-4. **Materializar `VW_MAS_VENDIDO`** con refresh programado y medir ganancia.  
-5. **Visualizaciones**: exportar `VW_MAS_VENDIDO` a PowerBI/Metabase para análisis exploratorio.
-
----
 
 
