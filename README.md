@@ -7,7 +7,7 @@
 
 ---
 
-## 1. Resumen ejecutivo (propósito académico)
+## 1. Resumen ejecutivo 
 
 Este proyecto construye un ecosistema de datos completo:
 
