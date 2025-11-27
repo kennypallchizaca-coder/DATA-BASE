@@ -1,4 +1,4 @@
-# Proyecto BDG – OLTP enriquecido + Data Warehouse (Informe Académico Completo)
+# Proyecto BDG – OLTP enriquecido + Data Warehouse-Informe
 
 **Autores:** Alex Guamán, Daniel Guanga, José Vanegas, Miguel Vanegas  
 **Materia:** Gestion de Bases de Datos 
