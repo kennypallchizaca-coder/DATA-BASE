@@ -434,10 +434,4 @@ FROM dual;
 
 ---
 
-## 17. Contacto / Autoría
-
-Este README fue ensamblado automáticamente a partir de los scripts, descripciones y ejemplos proporcionados en el proyecto. Para adaptarlo a un contexto institucional, incluye: autor real, correo, fecha y versiones de Oracle utilizadas en pruebas.
----
-
-**Fin del documento.**
 
