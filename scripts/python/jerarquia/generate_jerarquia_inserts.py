@@ -197,7 +197,18 @@ def generate_jerarquia_sql(
     cantones_rows = _load_csv(source_dir / "cantones.csv", ("CODIGO", "PROVINCIA_CODIGO", "NOMBRE"))
     parroquias_rows = _load_csv(source_dir / "parroquias.csv", ("CODIGO", "CANTON_CODIGO", "NOMBRE"))
 
-    if not provincias_rows or not cantones_rows or not parroquias_rows:
+    missing_csv = not provincias_rows or not cantones_rows or not parroquias_rows
+    existing_sql = output_path.exists() and output_path.stat().st_size > 0
+    if missing_csv:
+        if existing_sql:
+            return {
+                "status": "fallback",
+                "sql": output_path,
+                "provincias": None,
+                "cantones": None,
+                "parroquias": None,
+                "source": source_dir,
+            }
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with output_path.open("w", encoding="utf-8") as fh:
             fh.write("-- No se encontraron archivos de jerarquia validos.\n")

@@ -61,6 +61,10 @@ def build_plan_file(output_path: Path, sql_paths: List[str]) -> Path:
         fh.write("SELECT COUNT(*) AS TOTAL_DIM_UBICACION FROM DW_DIM_UBICACION;\n")
         fh.write("PROMPT Top producto mas vendido (si hay datos):\n")
         fh.write("SELECT * FROM VW_MAS_VENDIDO WHERE ROWNUM <= 5;\n")
+        fh.write("PROMPT Conteos jerarquía provincial:\n")
+        fh.write("SELECT COUNT(*) AS TOTAL_PROVINCIAS FROM PROVINCIAS;\n")
+        fh.write("SELECT COUNT(*) AS TOTAL_CANTONES FROM CANTONES;\n")
+        fh.write("SELECT COUNT(*) AS TOTAL_PARROQUIAS FROM PARROQUIAS;\n")
     return output_path
 
 
@@ -114,6 +118,11 @@ def main(argv: list[str] | None = None) -> None:
                 f" provincias={jerarquia_result['provincias']},"
                 f" cantones={jerarquia_result['cantones']},"
                 f" parroquias={jerarquia_result['parroquias']}"
+            )
+        elif jerarquia_result["status"] == "fallback":
+            print(
+                "No se regeneró la jerarquía porque faltaron los CSV,"
+                f" pero se reutilizó {jerarquia_result['sql']} que ya existía."
             )
         else:
             print(
